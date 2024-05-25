@@ -1,0 +1,35 @@
+[project]
+name = "haipera"
+version = "0.1.0"
+description = "Hassle-free configs, logging, and cluster management for research projects."
+authors = [
+    { name = "Towaki Takikawa", email = "tovacinni@gmail.com" }
+]
+dependencies = [
+    "pydantic>=2.7.4",
+    "tomli>=2.0.1",
+    "tomli-w>=1.0.0",
+    "gitpython>=3.1.43",
+    "platformdirs>=4.2.2",
+]
+readme = "README.md"
+requires-python = ">= 3.9"
+
+[project.scripts]
+haipera = "haipera.cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.rye]
+managed = true
+dev-dependencies = [
+    "pytest>=8.2.2",
+]
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/haipera"]
