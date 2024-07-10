@@ -132,6 +132,7 @@ def run_code_in_venv(source_code: str, venv_path: str, cwd: str) -> str:
 
 def find_package_file(directory: str) -> str:
     """Searches for a requiements.txt file or a pyproject.toml file in the given directory."""
+    directory = os.path.abspath(directory)
     for file in os.listdir(directory):
         if file == "requirements.txt":
             return os.path.join(directory, file)
