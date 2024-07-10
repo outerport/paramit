@@ -2,8 +2,8 @@
 
 <img src="haipera_logo.jpg" alt="Haipera Logo" width="300"/>
 
-[![License](https://img.shields.io/github/license/username/repo)](https://github.com/haipera/haipera/blob/main/LICENSE)
-[![GitHub stars](https://img.shields.io/github/stars/username/repo)](https://github.com/haipera/haipera/stargazers)
+[![License](https://img.shields.io/github/license/haipera/haipera)](https://github.com/haipera/haipera/blob/main/LICENSE)
+[![GitHub stars](https://img.shields.io/github/stars/haipera/haipera)](https://github.com/haipera/haipera/stargazers)
 
 Find the right parameters and track experiments for your model without all the boilerplate.
 
