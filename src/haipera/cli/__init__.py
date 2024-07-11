@@ -84,7 +84,7 @@ def find_variables(tree: ast.AST, path: str) -> List[HaiperaVariable]:
         def visit_FunctionDef(self, node: ast.FunctionDef):
             if node.name == "__init__":
                 if node.args.defaults:
-                    default_args = node.args.args[-len(node.args.defaults):]
+                    default_args = node.args.args[-len(node.args.defaults) :]
                     for arg, default in zip(default_args, node.args.defaults):
                         if isinstance(default, ast.Constant):
                             self.add_variable(arg.arg, default, node.lineno)
@@ -137,6 +137,8 @@ def expand_paths_in_global_variables(
                         line_number=var.line_number,
                     )
                 )
+            else:
+                expanded_vars.append(var)
         else:
             expanded_vars.append(var)
     return expanded_vars
@@ -330,7 +332,7 @@ def generate_configs_from_hyperparameters(
                     f"\033[91mError: Argument {key} not found in the code or config\033[0m"
                 )
                 sys.exit(1)
-            
+
         configs.append(config)
 
     return configs
@@ -338,11 +340,15 @@ def generate_configs_from_hyperparameters(
 
 def main():
     if len(sys.argv) < 3 or (sys.argv[1] != "run" and sys.argv[1] != "cloud"):
-        print("\033[93mUsage: haipera [run | cloud] <path_to_python_or_toml_file>\033[0m")
+        print(
+            "\033[93mUsage: haipera [run | cloud] <path_to_python_or_toml_file>\033[0m"
+        )
         sys.exit(1)
 
     if sys.argv[1] == "cloud":
-        print("\033[93mCloud runs are not available yet. Please sign up on the waitlist for updates at https://www.haipera.com\033[0m")
+        print(
+            "\033[93mCloud runs are not available yet. Please sign up on the waitlist for updates at https://www.haipera.com\033[0m"
+        )
         sys.exit(1)
 
     path = sys.argv[2]
