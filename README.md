@@ -7,7 +7,7 @@
 
 Find the right parameters and track experiments for your model without all the boilerplate.
 
-[Join our Discord server!](https://discord.gg/z8SZUBKt)
+[Join our Discord server!](https://discord.gg/UtHcwJzW)
 
 
 ## What is Haipera?
