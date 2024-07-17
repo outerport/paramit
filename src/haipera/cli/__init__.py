@@ -28,7 +28,7 @@ class HaiperaVariable(BaseModel):
 
 class HaiperaMetadata(BaseModel):
     version: str
-    created_on: datetime.datetime
+    created_on: str
     script_path: str
     package_path: str
 
@@ -144,7 +144,9 @@ def expand_paths_in_global_variables(
     return expanded_vars
 
 
-def generate_config_file(global_vars: List[HaiperaVariable], path: str) -> None:
+def generate_config_file(
+    global_vars: List[HaiperaVariable], script_path: str, config_path: str
+) -> None:
     """Generate a TOML configuration file with the given global variables."""
     config = {"global": {}, "meta": {}}
     for var in global_vars:
@@ -159,7 +161,7 @@ def generate_config_file(global_vars: List[HaiperaVariable], path: str) -> None:
                 current_dict = current_dict[part]
             current_dict[parts[-1]] = var.value
 
-    package_file = find_package_file(os.path.dirname(path))
+    package_file = find_package_file(os.path.dirname(script_path))
 
     if not package_file:
         print(
@@ -168,15 +170,18 @@ def generate_config_file(global_vars: List[HaiperaVariable], path: str) -> None:
 
     metadata = HaiperaMetadata(
         version="0.1.0",
-        created_on=datetime.datetime.now(),
-        script_path=os.path.abspath(path),
-        package_path=package_file,
+        created_on=str(datetime.datetime.now()),
+        script_path=os.path.abspath(script_path),
+        package_path=package_file if package_file else "",
     )
 
     config["meta"] = metadata.model_dump()
 
-    with open(path, "wb") as f:
+    with open(config_path, "wb") as f:
         tomli_w.dump(config, f)
+
+    if not package_file:
+        sys.exit(0)
 
 
 def load_config_file(path: str) -> dict:
@@ -255,6 +260,7 @@ def expand_args_dict(args_dict: Dict[str, str]) -> Dict[str, HaiperaParameter]:
             values = [value_type(v) for v in values]
         elif all(v.lower() in ["true", "false"] for v in values):
             value_type = bool
+
             def str_to_bool(value):
                 if value.lower() == "true":
                     return True
@@ -263,12 +269,12 @@ def expand_args_dict(args_dict: Dict[str, str]) -> Dict[str, HaiperaParameter]:
                 else:
                     print(f"\033[91mError: Bool argument must be True or False\033[0m")
                     sys.exit(1)
+
             values = [str_to_bool(v) for v in values]
-            
+
         else:
             value_type = str
             values = [value_type(v) for v in values]
-
 
         hyperparameters[arg] = HaiperaParameter(
             name=arg, type=type(values[0]).__name__, values=values
@@ -409,7 +415,8 @@ def main():
         global_vars = find_variables(tree, path)
         global_vars = expand_paths_in_global_variables(global_vars, path)
         config_path = path.replace(".py", ".toml")
-        generate_config_file(global_vars, config_path)
+        script_path = path.replace(".toml", ".py")
+        generate_config_file(global_vars, script_path, config_path)
         print(f"Configuration file generated at {config_path}")
     elif not path.endswith(".toml"):
         print(
@@ -420,7 +427,8 @@ def main():
             global_vars = find_variables(tree, path)
             global_vars = expand_paths_in_global_variables(global_vars, path)
             config_path = path.replace(".py", ".toml")
-            generate_config_file(global_vars, config_path)
+            script_path = path.replace(".toml", ".py")
+            generate_config_file(global_vars, script_path, config_path)
             print(f"Configuration file generated at {config_path}")
 
     config = load_config_file(path.replace(".py", ".toml"))
@@ -466,4 +474,11 @@ def main():
         with open(os.path.join(experiment_dir, base_name + ".py"), "w") as f:
             f.write(source_code)
 
-        stdout = run_code_in_venv(source_code, venv_path, experiment_dir)
+        # Also save the package file
+        with open(
+            os.path.join(experiment_dir, os.path.basename(package_file)), "wb"
+        ) as f:
+            with open(package_file, "rb") as p:
+                f.write(p.read())
+
+        run_code_in_venv(source_code, venv_path, experiment_dir)
