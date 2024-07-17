@@ -168,15 +168,18 @@ def generate_config_file(global_vars: List[HaiperaVariable], path: str) -> None:
 
     metadata = HaiperaMetadata(
         version="0.1.0",
-        created_on=datetime.datetime.now(),
+        created_on=str(datetime.datetime.now()),
         script_path=os.path.abspath(path),
-        package_path=package_file,
+        package_path=package_file if package_file else "",
     )
 
     config["meta"] = metadata.model_dump()
 
     with open(path, "wb") as f:
         tomli_w.dump(config, f)
+    
+    if not package_file:
+        sys.exit(0)
 
 
 def load_config_file(path: str) -> dict:
@@ -465,5 +468,10 @@ def main():
         source_code = ast.unparse(tree)
         with open(os.path.join(experiment_dir, base_name + ".py"), "w") as f:
             f.write(source_code)
+
+        # Also save the package file
+        with open(os.path.join(experiment_dir, os.path.basename(package_file)), "wb") as f:
+            with open(package_file, "rb") as p:
+                f.write(p.read())
 
         run_code_in_venv(source_code, venv_path, experiment_dir)
