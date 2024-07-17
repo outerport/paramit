@@ -28,7 +28,7 @@ class HaiperaVariable(BaseModel):
 
 class HaiperaMetadata(BaseModel):
     version: str
-    created_on: datetime.datetime
+    created_on: str
     script_path: str
     package_path: str
 
@@ -255,20 +255,20 @@ def expand_args_dict(args_dict: Dict[str, str]) -> Dict[str, HaiperaParameter]:
             values = [value_type(v) for v in values]
         elif all(v.lower() in ["true", "false"] for v in values):
             value_type = bool
+
             def str_to_bool(value):
                 if value.lower() == "true":
                     return True
                 elif value.lower() == "false":
                     return False
                 else:
-                    print(f"\033[91mError: Bool argument must be True or False\033[0m")
+                    print("\033[91mError: Bool argument must be True or False\033[0m")
                     sys.exit(1)
+
             values = [str_to_bool(v) for v in values]
-            
         else:
             value_type = str
             values = [value_type(v) for v in values]
-
 
         hyperparameters[arg] = HaiperaParameter(
             name=arg, type=type(values[0]).__name__, values=values
@@ -466,4 +466,4 @@ def main():
         with open(os.path.join(experiment_dir, base_name + ".py"), "w") as f:
             f.write(source_code)
 
-        stdout = run_code_in_venv(source_code, venv_path, experiment_dir)
+        run_code_in_venv(source_code, venv_path, experiment_dir)
