@@ -123,7 +123,7 @@ def expand_paths_in_global_variables(
     """Expand the path in the given global variables using the script path."""
     expanded_vars = []
     for var in global_vars:
-        if isinstance(var.value, str):
+        if isinstance(var.value, str) and var.value != "":
             expanded_path = os.path.abspath(
                 os.path.join(os.path.dirname(script_path), var.value)
             )
