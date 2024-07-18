@@ -63,3 +63,7 @@ You can also re-run existing configs reproducibly with:
 ```
 haipera run reports/experiment/script.toml
 ```
+
+## Have issues?
+
+Haipera is still in its early stages, so it'll likely to have bugs. We're actively developing haipera, so if you file a GitHub issue or comment in the Discord server or drop us a line at support@haipera.com we will try to resolve them ASAP!
