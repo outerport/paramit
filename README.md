@@ -1,4 +1,4 @@
-## Haipera: Convert Python scripts to production code
+## Haipera: Convert Python scripts to reproducible production code
 
 <img src="haipera_logo.jpg" alt="Haipera Logo" width="300"/>
 
