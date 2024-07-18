@@ -2,7 +2,7 @@ import os
 import sys
 import ast
 import datetime
-from typing import List, Any, Dict
+from typing import List, Any, Dict, Tuple
 from pydantic import BaseModel
 import tomli
 import tomli_w
@@ -99,7 +99,7 @@ def find_variables(tree: ast.AST, path: str) -> List[HaiperaVariable]:
             self.current_context.pop()
 
         def add_variable(self, name: str, value: ast.Constant, lineno: int):
-            full_name = ".".join(self.current_context + [name]) if name else None
+            full_name = ".".join(self.current_context + [name]) if name else ""
             variables.append(
                 HaiperaVariable(
                     name=full_name,
@@ -145,9 +145,14 @@ def expand_paths_in_global_variables(
 
 
 def generate_config_file(
-    global_vars: List[HaiperaVariable], script_path: str, config_path: str
-) -> None:
+    tree: ast.AST,
+    path: str,
+) -> Tuple[Dict[str, Any], str]:
     """Generate a TOML configuration file with the given global variables."""
+    global_vars = find_variables(tree, path)
+    global_vars = expand_paths_in_global_variables(global_vars, path)
+    script_path = path.replace(".toml", ".py")
+
     config = {"global": {}, "meta": {}}
     for var in global_vars:
         parts = var.name.split(".")
@@ -169,7 +174,7 @@ def generate_config_file(
         )
 
     metadata = HaiperaMetadata(
-        version="0.1.0",
+        version="0.1.3",
         created_on=str(datetime.datetime.now()),
         script_path=os.path.abspath(script_path),
         package_path=package_file if package_file else "",
@@ -177,11 +182,7 @@ def generate_config_file(
 
     config["meta"] = metadata.model_dump()
 
-    with open(config_path, "wb") as f:
-        tomli_w.dump(config, f)
-
-    if not package_file:
-        sys.exit(0)
+    return config, package_file
 
 
 def load_config_file(path: str) -> dict:
@@ -204,10 +205,17 @@ def set_global_variables_from_config(tree: ast.AST, config: dict) -> None:
                         node.value = ast.Constant(value=value)
 
 
+def help_in_args(args: List[str]) -> bool:
+    """Check if the help flag is in the given list of arguments."""
+    return any(arg in args for arg in ["-h", "--help"])
+
+
 def parse_args(args: List[str]) -> Dict[str, Any]:
     """Parse the given list of arguments into a dictionary."""
     args_dict = {}
     for arg_index, arg in enumerate(args):
+        if arg in ["--help", "--h"]:
+            continue
         if arg.startswith("--"):
             if "=" in arg:
                 key, value = arg.split("=")
@@ -267,7 +275,7 @@ def expand_args_dict(args_dict: Dict[str, str]) -> Dict[str, HaiperaParameter]:
                 elif value.lower() == "false":
                     return False
                 else:
-                    print(f"\033[91mError: Bool argument must be True or False\033[0m")
+                    print("\033[91mError: Bool argument must be True or False\033[0m")
                     sys.exit(1)
 
             values = [str_to_bool(v) for v in values]
@@ -281,6 +289,16 @@ def expand_args_dict(args_dict: Dict[str, str]) -> Dict[str, HaiperaParameter]:
         )
 
     return hyperparameters
+
+
+def pretty_print_config(config: Dict[str, Any]) -> None:
+    """Pretty print the config as parameters that can be passed to the CLI."""
+    print("Arguments:")
+    for key, value in config["global"].items():
+        print(f"  --{key.replace('_', '-')}={value}")
+    print("\nMetadata:")
+    for key, value in config["meta"].items():
+        print(f"  {key}: {value}")
 
 
 def generate_configs_from_hyperparameters(
@@ -410,28 +428,43 @@ def main():
         e.filename = path
         print(f"\033[91mSyntaxError: {e}\033[0m")
         sys.exit(1)
+    config_path = path.replace(".py", ".toml")
 
-    if not os.path.exists(path.replace(".py", ".toml")):
-        global_vars = find_variables(tree, path)
-        global_vars = expand_paths_in_global_variables(global_vars, path)
-        config_path = path.replace(".py", ".toml")
-        script_path = path.replace(".toml", ".py")
-        generate_config_file(global_vars, script_path, config_path)
-        print(f"Configuration file generated at {config_path}")
+    if help_in_args(sys.argv[3:]):
+        generated_config_file, package_file = generate_config_file(tree, path)
+
+        # Show usage
+        print(
+            "\033[93mUsage: haipera [run | cloud] <path_to_python_or_toml_file>\033[0m\n"
+        )
+
+        pretty_print_config(generated_config_file)
+
+        if not package_file:
+            sys.exit(0)
+        sys.exit(0)
+    elif not os.path.exists(config_path):
+        generated_config, package_file = generate_config_file(tree, path)
+        with open(config_path, "wb") as f:
+            tomli_w.dump(generated_config, f)
+
+        if not package_file:
+            sys.exit(0)
     elif not path.endswith(".toml"):
         print(
             f"\033[93mWarning: Configuration file {path.replace('.py', '.toml')} already exists\033[0m"
         )
         overwrite = input("Do you want to overwrite it? (y/n): ")
         if overwrite.lower() == "y":
-            global_vars = find_variables(tree, path)
-            global_vars = expand_paths_in_global_variables(global_vars, path)
-            config_path = path.replace(".py", ".toml")
-            script_path = path.replace(".toml", ".py")
-            generate_config_file(global_vars, script_path, config_path)
-            print(f"Configuration file generated at {config_path}")
+            generated_config, package_file = generate_config_file(tree, path)
 
-    config = load_config_file(path.replace(".py", ".toml"))
+        with open(config_path, "wb") as f:
+            tomli_w.dump(generated_config, f)
+
+        if not package_file:
+            sys.exit(0)
+
+    config = load_config_file(config_path)
 
     package_file = config["meta"]["package_path"]
     venv_path = find_venv_from_package_file(package_file)
