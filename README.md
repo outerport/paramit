@@ -9,7 +9,6 @@ Find the right parameters and track experiments for your model without all the b
 
 [Join our Discord server!](https://discord.gg/UtHcwJzW)
 
-
 ## What is Haipera?
 
 Haipera is an open-source framework to take scripts and make them 'production ready'.
@@ -30,35 +29,57 @@ pip install haipera
 
 Make sure you have a `requirements.txt` file where `script.py` or any Python script you want to run is (or alternatively, somewhere in the Git repo for the script).
 
-Run scripts with:
+## Example of using haipera
+
+In a typical project, you may set up a script like:
+
+```python3
+import numpy
+
+num_apples = 100
+apple_price = 3.0
+print("# apples: ", num_apples)
+print("price of an apple: ", apple_price)
+price = num_apples * apple_price
+print("total: ", price)
+```
+
+And in the same folder, you may have a `requirements.txt` that lists the dependencies:
 
 ```
-haipera run script.py
+numpy
 ```
 
-See what options will be available with:
+This is a superficial example, but when you want to start experimenting with what happens when you change `num_apples` and `apple_price`, you need to often make it possible to edit these variables from command line interfaces, set up a notebook, set up a JSON or YAML file to keep track of this, log the outputs in a logging service, save the outputs / configs in a separate experiment folder, etc. There's a lot of work involved.
+
+Haipera is designed to solve this. With haipera you can edit variables on the fly, which you can view with:
 
 ```
 haipera run script.py --help
+``` 
+
+When you run haipera, you can pass in arguments without ever setting up `argparse`:
+```
+haipera run script.py --num-apples 30
 ```
 
-Running a script with `haipera` will generate a `script.toml` file where `script.py` is. 
+This will also invoke a build of a virtual environment to run the code in, and generate a `script.toml` configuration file.
 
-You can directly 'edit' the config from CLI via:
-
-```
-haipera run script.py --options 123
-```
-
-You can also set up iterative experiments over parameters by:
+You can run these generated config files directly:
 
 ```
-haipera run script.py --option1 123 124 125 --option2 blue,red,green
+haipera run script.toml
+```
+
+You can also set up grid searches over parameters by:
+
+```
+haipera run script.py --num-apples 30,60 --apple-price 1.0,2.0
 ```
 
 Running `haipera` will also generate a `reports` folder where you run `haipera` from, with isolated experiment outputs in that folder.
 
-You can also re-run existing configs reproducibly with:
+You can then re-run existing configs reproducibly with:
 
 ```
 haipera run reports/experiment/script.toml
