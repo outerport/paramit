@@ -27,6 +27,12 @@ Install haipera:
 pip install haipera
 ```
 
+On Linux, you'll have to install a `venv` package, like:
+
+```
+apt install python3.10-venv
+```
+
 Make sure you have a `requirements.txt` file where `script.py` or any Python script you want to run is (or alternatively, somewhere in the Git repo for the script).
 
 ## Example of using haipera
