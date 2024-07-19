@@ -19,12 +19,22 @@ Haipera is an open-source framework to take scripts and make them 'production re
 - 🪵 **Automatic experiment logging.** Automatically generates per-experiment output folders with reproducible configs.
 - ☁️ **Hosted on the Cloud (coming soon!).** Run everything locally, or send your model to Haipera Cloud for parallel experimentation.
 
+#### What's next for haipera?
+
+We want to support things like logging, experiment tracking, GPU profiling, along with a central dashboard for everything all without having to write any custom code. Let us know at info@haipera.com if you have opinions- or if you have dying problems or needs that you want us to hear! We're all ears.
+
 ## Getting Started
 
 Install haipera:
 
 ```
 pip install haipera
+```
+
+On Linux, you'll have to install a `venv` package, like:
+
+```
+apt install python3.10-venv
 ```
 
 Make sure you have a `requirements.txt` file where `script.py` or any Python script you want to run is (or alternatively, somewhere in the Git repo for the script).
@@ -50,7 +60,9 @@ And in the same folder, you may have a `requirements.txt` that lists the depende
 numpy
 ```
 
-This is a superficial example, but when you want to start experimenting with what happens when you change `num_apples` and `apple_price`, you need to often make it possible to edit these variables from command line interfaces, set up a notebook, set up a JSON or YAML file to keep track of this, log the outputs in a logging service, save the outputs / configs in a separate experiment folder, etc. There's a lot of work involved.
+This is a superficial example, but say you want to start experimenting with this code. You'll probably adjust `num_apples` and `apple_price` manually at first, but eventually you'll lose track of what changes caused the differences in the results, unless you diligently keep a lab notebook. 
+
+To properly keep track of things, you need to often make it possible to edit these variables from command line interfaces, set up a notebook, set up a JSON or YAML file to keep track of this, log the outputs in a logging service, save the outputs / configs in a separate experiment folder, etc. There's a lot of work involved in making experimentation reproducible.
 
 Haipera is designed to solve this. With haipera you can edit variables on the fly, which you can view with:
 
@@ -88,6 +100,7 @@ haipera run reports/experiment/script.toml
 ## More examples
 
 See https://github.com/haipera/haipera-samples for more complex examples that you can try running haipera on.
+
 
 ## Have issues?
 
