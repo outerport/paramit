@@ -20,6 +20,22 @@ __all__ = [
 ]
 
 
+def get_python_path(venv_path) -> str:
+    if sys.platform.startswith("win"):
+        python_path = os.path.join(venv_path, "Scripts", "python")
+    else:
+        python_path = os.path.join(venv_path, "bin", "python")
+    return python_path
+
+
+def get_pip_path(venv_path) -> str:
+    if sys.platform.startswith("win"):
+        pip_path = os.path.join(venv_path, "Scripts", "pip")
+    else:
+        pip_path = os.path.join(venv_path, "bin", "pip")
+    return pip_path
+
+
 def find_package_to_venv_config_file() -> str:
     """Find the path to the package_to_venv.toml configuration file."""
     user_data_dir = platformdirs.user_data_dir("haipera")
@@ -66,9 +82,9 @@ def create_venv_and_install_packages(package_file: str) -> str:
         )
         sys.exit(1)
 
-    pip_result = subprocess.run(
-        [os.path.join(venv_path, "bin", "python"), "-m", "ensurepip"], check=True
-    )
+    python_path = get_python_path(venv_path)
+
+    pip_result = subprocess.run([python_path, "-m", "ensurepip"], check=True)
 
     if pip_result.returncode != 0:
         print(
@@ -76,7 +92,8 @@ def create_venv_and_install_packages(package_file: str) -> str:
         )
         sys.exit(1)
 
-    pip_path = os.path.join(venv_path, "bin", "pip")
+    pip_path = get_pip_path(venv_path)
+
     if (
         os.path.exists(package_file)
         and os.path.basename(package_file) == "requirements.txt"
@@ -113,7 +130,7 @@ def run_code_in_venv(source_code: str, venv_path: str, cwd: str) -> str:
         temp_file.write(source_code)
         temp_file_path = temp_file.name
 
-    python_path = os.path.join(venv_path, "bin", "python")
+    python_path = get_python_path(venv_path)
 
     try:
         result = subprocess.run(
@@ -129,7 +146,7 @@ def run_code_in_venv(source_code: str, venv_path: str, cwd: str) -> str:
         os.unlink(temp_file_path)
 
 
-def find_package_file(directory: str) -> str:
+def find_package_file(directory: str) -> Optional[str]:
     """Searches for a requiements.txt file or a pyproject.toml file in the given directory."""
     directory = os.path.abspath(directory)
     for file in os.listdir(directory):
