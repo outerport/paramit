@@ -4,12 +4,17 @@ import subprocess
 import uuid
 import tempfile
 
-from typing import Optional
+from typing import Optional, List
 
 import platformdirs
 import tomli
 import tomli_w
-import git
+try:
+    import git
+    GIT_ENABLED = True
+except ImportError:
+    # This is needed for when git is not properly installed
+    GIT_ENABLED = False
 
 __all__ = [
     "find_package_to_venv_config_file",
@@ -104,7 +109,7 @@ def create_venv_and_install_packages(package_file: str) -> str:
         and os.path.basename(package_file) == "pyproject.toml"
     ):
         result = subprocess.run(
-            [pip_path, "install", "-e", str(package_file.parent)], check=True
+            [pip_path, "install", "-e", package_file], check=True
         )
     else:
         print(f"\033[93mWarning: Invalid package file {package_file}\033[0m")
@@ -125,7 +130,7 @@ def create_venv_and_install_packages(package_file: str) -> str:
     return venv_path
 
 
-def run_code_in_venv(source_code: str, venv_path: str, cwd: str) -> str:
+def run_code_in_venv(source_code: str, venv_path: str, cwd: str) -> None:
     with tempfile.NamedTemporaryFile("w", delete=False) as temp_file:
         temp_file.write(source_code)
         temp_file_path = temp_file.name
@@ -139,12 +144,10 @@ def run_code_in_venv(source_code: str, venv_path: str, cwd: str) -> str:
             stderr=sys.stderr,
             stdout=sys.stdout,
         )
-        return result.stdout
     except subprocess.CalledProcessError as e:
         return e.stderr
     finally:
         os.unlink(temp_file_path)
-
 
 def find_package_file(directory: str) -> Optional[str]:
     """Searches for a requiements.txt file or a pyproject.toml file in the given directory."""
@@ -156,20 +159,21 @@ def find_package_file(directory: str) -> Optional[str]:
             return os.path.join(directory, file)
 
     # If no package file is found in the directory, search in the git repository
-    try:
-        repo = git.Repo(directory)
-        # Root
-        repo_root = repo.git.rev_parse("--show-toplevel")
-        # Search between the directory and the root of the repository, starting from the directory
-        while directory != repo_root:
-            for file in os.listdir(directory):
-                if file == "requirements.txt":
-                    return os.path.join(directory, file)
-                elif file == "pyproject.toml":
-                    return os.path.join(directory, file)
-            directory = os.path.dirname(directory)
+    if GIT_ENABLED:
+        try:
+            repo = git.Repo(directory)
+            # Root
+            repo_root = repo.git.rev_parse("--show-toplevel")
+            # Search between the directory and the root of the repository, starting from the directory
+            while directory != repo_root:
+                for file in os.listdir(directory):
+                    if file == "requirements.txt":
+                        return os.path.join(directory, file)
+                    elif file == "pyproject.toml":
+                        return os.path.join(directory, file)
+                directory = os.path.dirname(directory)
 
-    except git.InvalidGitRepositoryError:
-        pass
+        except git.InvalidGitRepositoryError:
+            pass
 
     return None
