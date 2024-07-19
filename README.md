@@ -20,6 +20,14 @@ Haipera is an open-source framework to take scripts and make them 'production re
 - 🪵 **Automatic experiment logging.** Automatically generates per-experiment output folders with reproducible configs.
 - ☁️ **Hosted on the Cloud (coming soon!).** Run everything locally, or send your model to Haipera Cloud for parallel experimentation.
 
+Other general features:
+
+- cached virtual environments
+- debug as usual with `pdb`
+- supports Windows, Linux, OSX
+- saves console logs along with configs
+- artifacts (images, models, etc) are also saved to separate experiment folders
+
 #### What's next for haipera?
 
 We want to support things like logging, experiment tracking, GPU profiling, along with a central web dashboard for everything all without having to write any custom code. Let us know at info@haipera.com if you have opinions- or if you have dying problems or needs that you want us to hear! We're all ears.
