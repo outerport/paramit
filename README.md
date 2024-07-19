@@ -85,6 +85,10 @@ You can then re-run existing configs reproducibly with:
 haipera run reports/experiment/script.toml
 ```
 
+## More examples
+
+See https://github.com/haipera/haipera-samples for more complex examples that you can try running haipera on.
+
 ## Have issues?
 
 Haipera is still in its early stages, so it'll likely to have bugs. We're actively developing haipera, so if you file a GitHub issue or comment in the Discord server or drop us a line at support@haipera.com we will try to resolve them ASAP!
