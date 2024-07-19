@@ -4,13 +4,15 @@ import subprocess
 import uuid
 import tempfile
 
-from typing import Optional, List
+from typing import Optional
 
 import platformdirs
 import tomli
 import tomli_w
+
 try:
     import git
+
     GIT_ENABLED = True
 except ImportError:
     # This is needed for when git is not properly installed
@@ -108,9 +110,7 @@ def create_venv_and_install_packages(package_file: str) -> str:
         os.path.exists(package_file)
         and os.path.basename(package_file) == "pyproject.toml"
     ):
-        result = subprocess.run(
-            [pip_path, "install", "-e", package_file], check=True
-        )
+        result = subprocess.run([pip_path, "install", "-e", package_file], check=True)
     else:
         print(f"\033[93mWarning: Invalid package file {package_file}\033[0m")
 
@@ -138,7 +138,7 @@ def run_code_in_venv(source_code: str, venv_path: str, cwd: str) -> None:
     python_path = get_python_path(venv_path)
 
     try:
-        result = subprocess.run(
+        subprocess.run(
             [python_path, temp_file_path],
             cwd=cwd,
             stderr=sys.stderr,
@@ -148,6 +148,7 @@ def run_code_in_venv(source_code: str, venv_path: str, cwd: str) -> None:
         return e.stderr
     finally:
         os.unlink(temp_file_path)
+
 
 def find_package_file(directory: str) -> Optional[str]:
     """Searches for a requiements.txt file or a pyproject.toml file in the given directory."""
