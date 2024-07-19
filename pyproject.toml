@@ -1,6 +1,6 @@
 [project]
 name = "haipera"
-version = "0.1.4"
+version = "0.1.5"
 description = "Hassle-free configs, logging, and cluster management for research projects."
 authors = [
     { name = "Towaki Takikawa", email = "tovacinni@gmail.com" }
