@@ -60,7 +60,9 @@ And in the same folder, you may have a `requirements.txt` that lists the depende
 numpy
 ```
 
-This is a superficial example, but when you want to start experimenting with what happens when you change `num_apples` and `apple_price`, you need to often make it possible to edit these variables from command line interfaces, set up a notebook, set up a JSON or YAML file to keep track of this, log the outputs in a logging service, save the outputs / configs in a separate experiment folder, etc. There's a lot of work involved.
+This is a superficial example, but say you want to start experimenting with this code. You'll probably adjust `num_apples` and `apple_price` manually at first, but eventually you'll lose track of what changes caused the differences in the results, unless you diligently keep a lab notebook. 
+
+To properly keep track of things, you need to often make it possible to edit these variables from command line interfaces, set up a notebook, set up a JSON or YAML file to keep track of this, log the outputs in a logging service, save the outputs / configs in a separate experiment folder, etc. There's a lot of work involved in making experimentation reproducible.
 
 Haipera is designed to solve this. With haipera you can edit variables on the fly, which you can view with:
 
