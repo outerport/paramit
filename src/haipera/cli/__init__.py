@@ -7,6 +7,7 @@ from pydantic import BaseModel
 import tomli
 import tomli_w
 import uuid
+from copy import deepcopy
 from haipera.venv import (
     find_venv_from_package_file,
     create_venv_and_install_packages,
@@ -333,6 +334,8 @@ def generate_configs_from_hyperparameters(
             print(
                 f"\033[91mError: Argument {hyperparameter.name} not found in the code or config\033[0m"
             )
+            # Print the available arguments
+            pretty_print_config(base_config)
             sys.exit(1)
 
     if not hyperparameters_range:
@@ -357,7 +360,7 @@ def generate_configs_from_hyperparameters(
     configs: List[Dict[str, Any]] = []
 
     for combination in hyperparameters_combinations:
-        config = base_config.copy()
+        config = deepcopy(base_config)
         for key, value in combination.items():
             if key in config["global"]:
                 try:
@@ -371,6 +374,7 @@ def generate_configs_from_hyperparameters(
                 print(
                     f"\033[91mError: Argument {key} not found in the code or config\033[0m"
                 )
+                pretty_print_config(base_config)
                 sys.exit(1)
 
         configs.append(config)
