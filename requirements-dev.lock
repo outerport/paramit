@@ -32,6 +32,8 @@ pydantic-core==2.18.4
 pytest==8.2.2
 smmap==5.0.1
     # via gitdb
+subprocess-tee==0.4.2
+    # via haipera
 tomli==2.0.1
     # via haipera
     # via pytest

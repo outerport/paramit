@@ -1,6 +1,7 @@
 import sys
 import os
 import subprocess
+import subprocess_tee
 import uuid
 import tempfile
 
@@ -137,13 +138,18 @@ def run_code_in_venv(source_code: str, venv_path: str, cwd: str) -> None:
 
     python_path = get_python_path(venv_path)
 
+    log_file_path = os.path.join(cwd, "console.log")
     try:
-        subprocess.run(
-            [python_path, temp_file_path],
-            cwd=cwd,
-            stderr=sys.stderr,
-            stdout=sys.stdout,
+        output = subprocess_tee.run(
+            f"{python_path} -u {temp_file_path}",
+            cwd=cwd, 
+            shell=True,
         )
+        
+        # Save 
+        with open(log_file_path, "w") as f:
+            f.write(output.stdout)
+
     except subprocess.CalledProcessError as e:
         return e.stderr
     finally:
