@@ -22,7 +22,7 @@ Haipera is an open-source framework to take scripts and make them 'production re
 
 #### What's next for haipera?
 
-We want to support things like logging, experiment tracking, GPU profiling, along with a central dashboard for everything all without having to write any custom code. Let us know at info@haipera.com if you have opinions- or if you have dying problems or needs that you want us to hear! We're all ears.
+We want to support things like logging, experiment tracking, GPU profiling, along with a central web dashboard for everything all without having to write any custom code. Let us know at info@haipera.com if you have opinions- or if you have dying problems or needs that you want us to hear! We're all ears.
 
 ## Getting Started
 
