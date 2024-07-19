@@ -4,6 +4,7 @@
 
 [![License](https://img.shields.io/github/license/haipera/haipera)](https://github.com/haipera/haipera/blob/main/LICENSE)
 [![GitHub stars](https://img.shields.io/github/stars/haipera/haipera)](https://github.com/haipera/haipera/stargazers)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/12jY7Kr1Rupj-aJFjlIRgZf1x-nySQdoJ?usp=sharing)
 
 Find the right parameters and track experiments for your model without all the boilerplate.
 
@@ -24,6 +25,8 @@ Haipera is an open-source framework to take scripts and make them 'production re
 We want to support things like logging, experiment tracking, GPU profiling, along with a central dashboard for everything all without having to write any custom code. Let us know at info@haipera.com if you have opinions- or if you have dying problems or needs that you want us to hear! We're all ears.
 
 ## Getting Started
+
+
 
 Install haipera:
 
@@ -96,6 +99,10 @@ You can then re-run existing configs reproducibly with:
 ```
 haipera run reports/experiment/script.toml
 ```
+
+## Demo on Google Colab
+You can also try our Google Colab version which allows you to run Haipera in the cloud. Check out our Colab demo using the following notebook: [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/12jY7Kr1Rupj-aJFjlIRgZf1x-nySQdoJ?usp=sharing)
+
 
 ## More examples
 
