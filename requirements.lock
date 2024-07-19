@@ -23,6 +23,8 @@ pydantic-core==2.18.4
     # via pydantic
 smmap==5.0.1
     # via gitdb
+subprocess-tee==0.4.2
+    # via haipera
 tomli==2.0.1
     # via haipera
 tomli-w==1.0.0
