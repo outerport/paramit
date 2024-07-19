@@ -174,7 +174,7 @@ def generate_config_file(
         )
 
     metadata = HaiperaMetadata(
-        version="0.1.3",
+        version="0.1.4",
         created_on=str(datetime.datetime.now()),
         script_path=os.path.abspath(script_path),
         package_path=package_file if package_file else "",
@@ -458,14 +458,13 @@ def main():
         if overwrite.lower() == "y":
             generated_config, package_file = generate_config_file(tree, path)
 
-        with open(config_path, "wb") as f:
-            tomli_w.dump(generated_config, f)
+            with open(config_path, "wb") as f:
+                tomli_w.dump(generated_config, f)
 
-        if not package_file:
-            sys.exit(0)
+            if not package_file:
+                sys.exit(0)
 
     config = load_config_file(config_path)
-
     package_file = config["meta"]["package_path"]
     venv_path = find_venv_from_package_file(package_file)
     if not venv_path:
