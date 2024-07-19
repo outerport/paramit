@@ -2,7 +2,7 @@ import os
 import sys
 import ast
 import datetime
-from typing import List, Any, Dict, Tuple
+from typing import List, Any, Dict, Tuple, Optional
 from pydantic import BaseModel
 import tomli
 import tomli_w
@@ -59,7 +59,9 @@ def find_variables(tree: ast.AST, path: str) -> List[HaiperaVariable]:
                     and isinstance(target.value, ast.Name)
                     and target.value.id == "self"
                 ):
-                    self.add_variable(target.attr, node.value, node.lineno)
+                    pass
+                    # Disable for now
+                    # self.add_variable(target.attr, node.value, node.lineno)
             self.generic_visit(node)
 
         def visit_Call(self, node: ast.Call):
@@ -87,7 +89,9 @@ def find_variables(tree: ast.AST, path: str) -> List[HaiperaVariable]:
                     default_args = node.args.args[-len(node.args.defaults) :]
                     for arg, default in zip(default_args, node.args.defaults):
                         if isinstance(default, ast.Constant):
-                            self.add_variable(arg.arg, default, node.lineno)
+                            # Disable for now
+                            # self.add_variable(arg.arg, default, node.lineno)
+                            pass
             self.generic_visit(node)
 
         def visit_ClassDef(self, node: ast.ClassDef):
@@ -147,7 +151,7 @@ def expand_paths_in_global_variables(
 def generate_config_file(
     tree: ast.AST,
     path: str,
-) -> Tuple[Dict[str, Any], str]:
+) -> Tuple[Dict[str, Any], Optional[str]]:
     """Generate a TOML configuration file with the given global variables."""
     global_vars = find_variables(tree, path)
     global_vars = expand_paths_in_global_variables(global_vars, path)
