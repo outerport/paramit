@@ -517,4 +517,5 @@ def main():
             with open(package_file, "rb") as p:
                 f.write(p.read())
 
+        print("Running experiment!\n")
         run_code_in_venv(source_code, venv_path, experiment_dir)
