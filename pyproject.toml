@@ -1,6 +1,6 @@
 [project]
 name = "haipera"
-version = "0.1.5"
+version = "0.1.7"
 description = "Hassle-free configs, logging, and cluster management for research projects."
 authors = [
     { name = "Towaki Takikawa", email = "tovacinni@gmail.com" }
@@ -12,6 +12,9 @@ dependencies = [
     "gitpython>=3.1.43",
     "platformdirs>=4.2.2",
     "subprocess-tee>=0.4.2",
+    "nbconvert>=7.16.4",
+    "nbformat>=5.10.4",
+    "ipython>=8.26.0",
 ]
 readme = "README.md"
 requires-python = ">= 3.9"

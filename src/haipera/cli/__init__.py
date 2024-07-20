@@ -14,7 +14,7 @@ from haipera.venv import (
     run_code_in_venv,
     find_package_file,
 )
-
+from haipera.nb import convert_ipynb_to_py
 
 class HaiperaVariable(BaseModel):
     name: str
@@ -179,7 +179,7 @@ def generate_config_file(
         )
 
     metadata = HaiperaMetadata(
-        version="0.1.5",
+        version="0.1.7",
         created_on=str(datetime.datetime.now()),
         script_path=os.path.abspath(script_path),
         package_path=package_file if package_file else "",
@@ -403,8 +403,8 @@ def main():
     cli_args = parse_args(sys.argv[3:])
     hyperparameters = expand_args_dict(cli_args)
 
-    if not path.endswith(".py") and not path.endswith(".toml"):
-        print(f"\033[91mError: File {path} is not a Python or TOML file\033[0m")
+    if not path.endswith(".py") and not path.endswith(".toml") and not path.endswith(".ipynb"):
+        print(f"\033[91mError: File {path} is not a Python or Notebook or TOML file\033[0m")
         sys.exit(1)
 
     if path.endswith(".toml"):
@@ -429,6 +429,8 @@ def main():
     elif path.endswith(".py"):
         with open(path, "r") as f:
             code = f.read()
+    elif path.endswith(".ipynb"):
+        code = convert_ipynb_to_py(path)
 
     try:
         tree = ast.parse(code)
@@ -436,7 +438,7 @@ def main():
         e.filename = path
         print(f"\033[91mSyntaxError: {e}\033[0m")
         sys.exit(1)
-    config_path = path.replace(".py", ".toml")
+    config_path = path.replace(".py", ".toml").replace(".ipynb", ".toml")
 
     if help_in_args(sys.argv[3:]):
         generated_config_file, package_file = generate_config_file(tree, path)
@@ -460,7 +462,7 @@ def main():
             sys.exit(0)
     elif not path.endswith(".toml"):
         print(
-            f"\033[93mWarning: Configuration file {path.replace('.py', '.toml')} already exists\033[0m"
+            f"\033[93mWarning: Configuration file {config_path} already exists\033[0m"
         )
         overwrite = input("Do you want to overwrite it? (y/n): ")
         if overwrite.lower() == "y":
