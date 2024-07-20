@@ -4,6 +4,7 @@ import subprocess
 import subprocess_tee
 import uuid
 import tempfile
+import hashlib
 
 from typing import Optional
 
@@ -44,6 +45,24 @@ def get_pip_path(venv_path) -> str:
     return pip_path
 
 
+def hash_package_file(package_file: str) -> str:
+    with open(package_file, 'r') as file:
+        # Read and split the file into lines
+        lines = file.readlines()
+    
+    # Remove whitespace and empty lines
+    lines = [line.strip() for line in lines if line.strip()]
+    
+    # Sort the lines
+    sorted_lines = sorted(lines)
+    
+    # Join the sorted lines
+    content = '\n'.join(sorted_lines)
+
+    # Create a hash of the content
+    return hashlib.sha256(content.encode()).hexdigest()
+
+
 def find_package_to_venv_config_file() -> str:
     """Find the path to the package_to_venv.toml configuration file."""
     user_data_dir = platformdirs.user_data_dir("haipera")
@@ -66,13 +85,15 @@ def find_venv_from_package_file(package_file: str) -> Optional[str]:
     with open(config_file_path, "rb") as f:
         config = tomli.load(f)
 
-    if package_file in config:
+    hash_key = hash_package_file(package_file)
+    print(hash_key)
+    if hash_key in config:
         # Check that the venv path is valid
-        venv_path = config[package_file]
+        venv_path = config[hash_key]
         if os.path.exists(venv_path):
             return venv_path
         else:
-            del config[package_file]
+            del config[hash_key]
             with open(config_file_path, "wb") as f:
                 tomli_w.dump(config, f)
 
@@ -124,7 +145,8 @@ def create_venv_and_install_packages(package_file: str) -> str:
     with open(config_file_path, "rb") as f:
         config = tomli.load(f)
 
-    config[package_file] = venv_path
+    hash_key = hash_package_file(package_file)
+    config[hash_key] = venv_path
     with open(config_file_path, "wb") as f:
         tomli_w.dump(config, f)
 
