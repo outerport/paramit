@@ -15,7 +15,7 @@ Find the right parameters and track experiments for your model without all the b
 Haipera is an open-source framework to take scripts and notebooks and make them 'production ready'.
 
 - 🦥 **Config files without any code.** Automatically probes the source code to generate reproducible config files.
-- 🐳 **Deploy on virtualenv for reproducible experiments.** Takes care of all the virtual environments of your code for maximum reproducibility of experiments.
+- 🐳 **Deploy on virtualenv for reproducible experiments.** Takes care of all the virtual environments (with auto-updates) of your code for maximum reproducibility of experiments.
 - 🤖 **Setup grid search from CLI.** Use the command line to directly iterate through hyperparameters.
 - 🪵 **Automatic experiment logging.** Automatically generates per-experiment output folders with reproducible configs.
 - ☁️ **Hosted on the Cloud (coming soon!).** Run everything locally, or send your model to Haipera Cloud for parallel experimentation.
