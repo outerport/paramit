@@ -1,4 +1,4 @@
-## Haipera: Convert Python scripts to reproducible production code
+## Haipera: Convert Python scripts and notebooks to reproducible production code
 
 <img src="haipera_logo.jpg" alt="Haipera Logo" width="300"/>
 
@@ -12,7 +12,7 @@ Find the right parameters and track experiments for your model without all the b
 
 ## What is Haipera?
 
-Haipera is an open-source framework to take scripts and make them 'production ready'.
+Haipera is an open-source framework to take scripts and notebooks and make them 'production ready'.
 
 - 🦥 **Config files without any code.** Automatically probes the source code to generate reproducible config files.
 - 🐳 **Deploy on virtualenv for reproducible experiments.** Takes care of all the virtual environments of your code for maximum reproducibility of experiments.
@@ -22,6 +22,7 @@ Haipera is an open-source framework to take scripts and make them 'production re
 
 Other general features:
 
+- supports `.ipynb` notebook files
 - cached virtual environments
 - debug as usual with `pdb`
 - supports Windows, Linux, OSX
@@ -106,6 +107,12 @@ You can then re-run existing configs reproducibly with:
 
 ```
 haipera run reports/experiment/script.toml
+```
+
+You can even run on Jupyter notebooks!
+
+```
+haipera run script.ipynb --num-apples 30
 ```
 
 ## Demo on Google Colab
