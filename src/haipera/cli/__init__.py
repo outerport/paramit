@@ -468,11 +468,7 @@ def main():
             sys.exit(0)
     elif not path.endswith(".toml"):
         print(
-<<<<<<< HEAD
-            f"\033[93mWarning: Configuration file {config_path} already exists\033[0m"
-=======
             f"{YELLOW}Warning: Configuration file {path.replace('.py', '.toml')} already exists{RESET}"
->>>>>>> 8b6ae5c (update message colors)
         )
         overwrite = input("Do you want to overwrite it? (y/n): ")
         if overwrite.lower() == "y":
@@ -525,8 +521,6 @@ def main():
         source_code = ast.unparse(tree)
         with open(os.path.join(experiment_dir, base_name + ".py"), "w") as f:
             f.write(source_code)
-<<<<<<< HEAD
-
         # Also save the package file
         with open(
             os.path.join(experiment_dir, os.path.basename(package_file)), "wb"
@@ -536,6 +530,3 @@ def main():
 
         print("Running experiment!\n")
         run_code_in_venv(source_code, venv_path, experiment_dir)
-=======
-        stdout = run_code_in_venv(source_code, venv_path, experiment_dir)
->>>>>>> 8b6ae5c (update message colors)
