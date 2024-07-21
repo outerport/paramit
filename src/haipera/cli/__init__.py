@@ -281,11 +281,7 @@ def expand_args_dict(args_dict: Dict[str, str]) -> Dict[str, HaiperaParameter]:
                 elif value.lower() == "false":
                     return False
                 else:
-<<<<<<< HEAD
-                    print("\033[91mError: Bool argument must be True or False\033[0m")
-=======
                     print(f"{RED}Error: Bool argument must be True or False{RESET}")
->>>>>>> 8b6ae5c (update message colors)
                     sys.exit(1)
 
             values = [str_to_bool(v) for v in values]
