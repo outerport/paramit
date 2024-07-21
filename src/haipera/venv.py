@@ -20,6 +20,8 @@ except ImportError:
     # This is needed for when git is not properly installed
     GIT_ENABLED = False
 
+from haipera.constants import YELLOW, RED, RESET
+
 __all__ = [
     "find_package_to_venv_config_file",
     "find_venv_from_package_file",
@@ -107,7 +109,7 @@ def create_venv_and_install_packages(package_file: str) -> str:
 
     if venv_result.returncode != 0:
         print(
-            f"\033[91mError: Failed to create virtual environment at {venv_path}\033[0m"
+            f"{RED}Error: Failed to create virtual environment at {venv_path}{RESET}"
         )
         sys.exit(1)
 
@@ -117,7 +119,7 @@ def create_venv_and_install_packages(package_file: str) -> str:
 
     if pip_result.returncode != 0:
         print(
-            f"\033[91mError: Failed to install pip in the virtual environment at {venv_path}\033[0m"
+            f"{RED}Error: Failed to install pip in the virtual environment at {venv_path}{RESET}"
         )
         sys.exit(1)
 
@@ -134,10 +136,10 @@ def create_venv_and_install_packages(package_file: str) -> str:
     ):
         result = subprocess.run([pip_path, "install", "-e", package_file], check=True)
     else:
-        print(f"\033[93mWarning: Invalid package file {package_file}\033[0m")
+        print(f"{YELLOW}Warning: Invalid package file {package_file}{RESET}")
 
     if result.returncode != 0:
-        print(f"\033[91mError: Failed to install packages from {package_file}\033[0m")
+        print(f"{RED}Error: Failed to install packages from {package_file}{RESET}")
         sys.exit(1)
 
     print(f"Installed packages from {package_file} in the virtual environment")
