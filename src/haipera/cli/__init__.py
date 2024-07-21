@@ -17,6 +17,7 @@ from haipera.venv import (
 from haipera.nb import convert_ipynb_to_py
 from haipera.constants import YELLOW, MAGENTA, GREEN, RED, RESET
 
+
 class HaiperaVariable(BaseModel):
     name: str
     value: Any

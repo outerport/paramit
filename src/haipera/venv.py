@@ -48,18 +48,18 @@ def get_pip_path(venv_path) -> str:
 
 
 def hash_package_file(package_file: str) -> str:
-    with open(package_file, 'r') as file:
+    with open(package_file, "r") as file:
         # Read and split the file into lines
         lines = file.readlines()
-    
+
     # Remove whitespace and empty lines
     lines = [line.strip() for line in lines if line.strip()]
-    
+
     # Sort the lines
     sorted_lines = sorted(lines)
-    
+
     # Join the sorted lines
-    content = '\n'.join(sorted_lines)
+    content = "\n".join(sorted_lines)
 
     # Create a hash of the content
     return hashlib.sha256(content.encode()).hexdigest()
@@ -108,9 +108,7 @@ def create_venv_and_install_packages(package_file: str) -> str:
     venv_result = subprocess.run(["python", "-m", "venv", venv_path], check=True)
 
     if venv_result.returncode != 0:
-        print(
-            f"{RED}Error: Failed to create virtual environment at {venv_path}{RESET}"
-        )
+        print(f"{RED}Error: Failed to create virtual environment at {venv_path}{RESET}")
         sys.exit(1)
 
     python_path = get_python_path(venv_path)
@@ -166,11 +164,11 @@ def run_code_in_venv(source_code: str, venv_path: str, cwd: str) -> None:
     try:
         output = subprocess_tee.run(
             f"{python_path} -u {temp_file_path}",
-            cwd=cwd, 
+            cwd=cwd,
             shell=True,
         )
-        
-        # Save 
+
+        # Save
         with open(log_file_path, "w") as f:
             f.write(output.stdout)
 
