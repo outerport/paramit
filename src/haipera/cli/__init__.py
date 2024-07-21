@@ -404,13 +404,8 @@ def main():
     cli_args = parse_args(sys.argv[3:])
     hyperparameters = expand_args_dict(cli_args)
 
-<<<<<<< HEAD
-    if not path.endswith(".py") and not path.endswith(".toml") and not path.endswith(".ipynb"):
-        print(f"\033[91mError: File {path} is not a Python or Notebook or TOML file\033[0m")
-=======
     if not path.endswith(".py") and not path.endswith(".toml"):
         print(f"{RED}Error: File {path} is not a Python or TOML file{RESET}")
->>>>>>> 8b6ae5c (update message colors)
         sys.exit(1)
 
     if path.endswith(".toml"):
