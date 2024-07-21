@@ -15,6 +15,8 @@ from haipera.venv import (
     find_package_file,
 )
 from haipera.nb import convert_ipynb_to_py
+from haipera.constants import YELLOW, MAGENTA, GREEN, RED, RESET
+
 
 class HaiperaVariable(BaseModel):
     name: str
@@ -175,7 +177,7 @@ def generate_config_file(
 
     if not package_file:
         print(
-            "\033[93mWarning: No package file found, set the package_path manually in the config file\033[0m"
+            f"{YELLOW}Warning: No package file found, set the package_path manually in the config file{RESET}"
         )
 
     metadata = HaiperaMetadata(
@@ -227,7 +229,7 @@ def parse_args(args: List[str]) -> Dict[str, Any]:
             else:
                 key = arg
                 if arg_index + 1 >= len(args):
-                    print(f"\033[91mError: Argument {arg} is missing a value\033[0m")
+                    print(f"{RED}Error: Argument {arg} is missing a value{RESET}")
                     sys.exit(1)
 
                 value = ""
@@ -261,7 +263,7 @@ def expand_args_dict(args_dict: Dict[str, str]) -> Dict[str, HaiperaParameter]:
             values = [value]
 
         if not values:
-            print(f"\033[91mError: Argument {arg} must have at least one value\033[0m")
+            print(f"{RED}Error: Argument {arg} must have at least one value{RESET}")
             sys.exit(1)
 
         value_type = None
@@ -280,7 +282,7 @@ def expand_args_dict(args_dict: Dict[str, str]) -> Dict[str, HaiperaParameter]:
                 elif value.lower() == "false":
                     return False
                 else:
-                    print("\033[91mError: Bool argument must be True or False\033[0m")
+                    print(f"{RED}Error: Bool argument must be True or False{RESET}")
                     sys.exit(1)
 
             values = [str_to_bool(v) for v in values]
@@ -327,12 +329,12 @@ def generate_configs_from_hyperparameters(
                 )(hyperparameter.values[0])
             except ValueError:
                 print(
-                    f"\033[91mError: Argument {hyperparameter.name} must be of type {type(base_config['global'][hyperparameter.name])}\033[0m"
+                    f"{RED}Error: Argument {hyperparameter.name} must be of type {type(base_config['global'][hyperparameter.name])}{RESET}"
                 )
                 sys.exit(1)
         else:
             print(
-                f"\033[91mError: Argument {hyperparameter.name} not found in the code or config\033[0m"
+                f"{RED}Error: Argument {hyperparameter.name} not found in the code or config{RESET}"
             )
             # Print the available arguments
             pretty_print_config(base_config)
@@ -367,12 +369,12 @@ def generate_configs_from_hyperparameters(
                     config["global"][key] = type(config["global"][key])(value)
                 except ValueError:
                     print(
-                        f"\033[91mError: Argument {key} must be of type {type(config['global'][key])}\033[0m"
+                        f"{RED}Error: Argument {key} must be of type {type(config['global'][key])}{RESET}"
                     )
                     sys.exit(1)
             else:
                 print(
-                    f"\033[91mError: Argument {key} not found in the code or config\033[0m"
+                    f"{RED}Error: Argument {key} not found in the code or config{RESET}"
                 )
                 pretty_print_config(base_config)
                 sys.exit(1)
@@ -385,26 +387,26 @@ def generate_configs_from_hyperparameters(
 def main():
     if len(sys.argv) < 3 or (sys.argv[1] != "run" and sys.argv[1] != "cloud"):
         print(
-            "\033[93mUsage: haipera [run | cloud] <path_to_python_or_toml_file>\033[0m"
+            f"{YELLOW}Usage: haipera [run | cloud] <path_to_python_or_toml_file>{RESET}"
         )
         sys.exit(1)
 
     if sys.argv[1] == "cloud":
         print(
-            "\033[93mCloud runs are not available yet. Please sign up on the waitlist for updates at https://www.haipera.com\033[0m"
+            f"{MAGENTA}Cloud runs are in development. Please sign up on the waitlist for updates at https://www.haipera.com{RESET}"
         )
         sys.exit(1)
 
     path = sys.argv[2]
     if not os.path.exists(path):
-        print(f"\033[91mError: File {path} does not exist\033[0m")
+        print(f"{RED}Error: File {path} does not exist{RESET}")
         sys.exit(1)
 
     cli_args = parse_args(sys.argv[3:])
     hyperparameters = expand_args_dict(cli_args)
 
-    if not path.endswith(".py") and not path.endswith(".toml") and not path.endswith(".ipynb"):
-        print(f"\033[91mError: File {path} is not a Python or Notebook or TOML file\033[0m")
+    if not path.endswith(".py") and not path.endswith(".toml"):
+        print(f"{RED}Error: File {path} is not a Python or TOML file{RESET}")
         sys.exit(1)
 
     if path.endswith(".toml"):
@@ -414,12 +416,12 @@ def main():
             HaiperaMetadata(**config["meta"])
         except Exception:
             print(
-                "\033[91mError: The config file is not a valid haipera config file\033[0m"
+                f"{RED}Error: The config file is not a valid haipera config file{RESET}"
             )
 
         if not os.path.exists(config["meta"]["script_path"]):
             print(
-                f"\033[91mError: Python file {config['meta']['script_path']} does not exist\033[0m"
+                f"{RED}Error: Python file {config['meta']['script_path']} does not exist{RESET}"
             )
             sys.exit(1)
 
@@ -436,7 +438,7 @@ def main():
         tree = ast.parse(code)
     except SyntaxError as e:
         e.filename = path
-        print(f"\033[91mSyntaxError: {e}\033[0m")
+        print(f"{RED}SyntaxError: {e}{RESET}")
         sys.exit(1)
     config_path = path.replace(".py", ".toml").replace(".ipynb", ".toml")
 
@@ -462,7 +464,7 @@ def main():
             sys.exit(0)
     elif not path.endswith(".toml"):
         print(
-            f"\033[93mWarning: Configuration file {config_path} already exists\033[0m"
+            f"{YELLOW}Warning: Configuration file {path.replace('.py', '.toml')} already exists{RESET}"
         )
         overwrite = input("Do you want to overwrite it? (y/n): ")
         if overwrite.lower() == "y":
@@ -483,17 +485,17 @@ def main():
     experiment_configs = generate_configs_from_hyperparameters(config, hyperparameters)
 
     if len(experiment_configs) > 100:
-        print(f"\033[93mWarning: Running {len(experiment_configs)} experiments\033[0m")
+        print(f"{YELLOW}Warning: Running {len(experiment_configs)} experiments{RESET}")
         confirm = input("Do you want to continue? (y/n): ")
         if confirm.lower() != "y":
             sys.exit(0)
     elif len(experiment_configs) == 0:
-        print("\033[93mWarning: No experiments to run\033[0m")
+        print(f"{YELLOW}Warning: No experiments to run{RESET}")
         sys.exit(0)
     elif len(experiment_configs) == 1:
         pass
     else:
-        print(f"\033[93mRunning {len(experiment_configs)} experiments\033[0m")
+        print(f"{GREEN}Running {len(experiment_configs)} experiments{RESET}")
 
     for experiment_config in experiment_configs:
         experiment_id = (
@@ -515,7 +517,6 @@ def main():
         source_code = ast.unparse(tree)
         with open(os.path.join(experiment_dir, base_name + ".py"), "w") as f:
             f.write(source_code)
-
         # Also save the package file
         with open(
             os.path.join(experiment_dir, os.path.basename(package_file)), "wb"
