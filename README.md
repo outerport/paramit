@@ -12,7 +12,7 @@ Find the right parameters and track experiments for your model without all the b
 
 ## What is Haipera?
 
-Haipera is an open-source framework to take scripts and notebooks and make them 'production ready'.
+Haipera is an open-source framework to take scripts _and_ notebooks and make them 'production ready'.
 
 - 🦥 **Config files without any code.** Automatically probes the source code to generate reproducible config files.
 - 🐳 **Deploy on virtualenv for reproducible experiments.** Takes care of all the virtual environments (with auto-updates) of your code for maximum reproducibility of experiments.
@@ -22,7 +22,8 @@ Haipera is an open-source framework to take scripts and notebooks and make them 
 
 Other general features:
 
-- supports `.ipynb` notebook files
+- supports running `.ipynb` notebook files as scripts
+- supports running a notebook server (with configs)
 - cached virtual environments
 - debug as usual with `pdb`
 - supports Windows, Linux, OSX
