@@ -262,9 +262,11 @@ def generate_config_file(
 
     if not package_file:
         print(
-            f"{YELLOW}Warning: No package file found, automatically creating one{RESET}"
+            # f"{YELLOW}Warning: No package file found, automatically creating one{RESET}"
+            f"{YELLOW}Warning: No package file found, set the package_path manually in the config file{RESET}"
         )
-        package_file = generate_package_file(os.path.dirname(script_path))
+        # TODO: Find dependency sol to pipreqs
+        # package_file = generate_package_file(os.path.dirname(script_path))
 
     metadata = HaiperaMetadata(
         version="0.1.8",
@@ -473,10 +475,10 @@ def print_usage():
         f"{MAGENTA}Usage: haipera [run | cloud | notebook] <path_to_python_or_toml_file>{RESET}"
     )
     print()
-    print(f"commands")
-    print(f"    run - Run the Python script or notebook")
-    print(f"    cloud - Run the Python script or notebook on the cloud")
-    print(f"    notebook - Start a Jupyter notebook server with the script or notebook")
+    print("commands")
+    print("    run - Run the Python script or notebook")
+    print("    cloud - Run the Python script or notebook on the cloud")
+    print("    notebook - Start a Jupyter notebook server with the script or notebook")
 
 
 def main():
@@ -640,7 +642,9 @@ def main():
             run_code_in_venv(source_code, venv_path, experiment_dir)
 
         elif mode == HaiperaMode.NOTEBOOK:
-            ipykernel_is_installed = is_package_installed_in_venv(venv_path, "ipykernel")
+            ipykernel_is_installed = is_package_installed_in_venv(
+                venv_path, "ipykernel"
+            )
             if not ipykernel_is_installed:
                 print("ipykernel is not installed in venv. Installing now.", venv_path)
                 pip_path = get_pip_path(venv_path)
