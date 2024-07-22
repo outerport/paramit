@@ -10,9 +10,13 @@ Find the right parameters and track experiments for your model without all the b
 
 [Join our Discord server!](https://discord.gg/UtHcwJzW)
 
+<p align="center">
+    <img src="demo.gif" alt="Demo Gif for Haipera" width="700"/>
+</p>
+
 ## What is Haipera?
 
-Haipera is an open-source framework to take scripts and notebooks and make them 'production ready'.
+Haipera is an open-source framework to take scripts _and_ notebooks and make them 'production ready'.
 
 - 🦥 **Config files without any code.** Automatically probes the source code to generate reproducible config files.
 - 🐳 **Deploy on virtualenv for reproducible experiments.** Takes care of all the virtual environments (with auto-updates) of your code for maximum reproducibility of experiments.
@@ -22,7 +26,8 @@ Haipera is an open-source framework to take scripts and notebooks and make them 
 
 Other general features:
 
-- supports `.ipynb` notebook files
+- supports running `.ipynb` notebook files as scripts
+- supports running a notebook server (with configs)
 - cached virtual environments
 - debug as usual with `pdb`
 - supports Windows, Linux, OSX
@@ -41,6 +46,12 @@ Install haipera:
 
 ```
 pip install haipera
+```
+
+If you want to use the notebook hosting, you can do
+
+```
+pip install "haipera[notebook]"
 ```
 
 On Linux, you'll have to install a `venv` package, like:
@@ -109,11 +120,25 @@ You can then re-run existing configs reproducibly with:
 haipera run reports/experiment/script.toml
 ```
 
-You can even run on Jupyter notebooks!
+## Using haipera with Jupyter Notebooks
+
+You can even run haipera with Jupyter notebooks! Using `haipera run` on a notebook file will run the notebook as a script. This is convenient when you want to develop your script inside a notebook environment, but then scale out your runs across a bunch of parameters.
 
 ```
-haipera run script.ipynb --num-apples 30
+haipera run script.ipynb --num-apples 30,40,50
 ```
+
+If you instead want to spin up a notebook with your chosen config, and have it run in an isolated environment (inside the generated `reports` folder), you can simply run the notebook with `haipera notebook`:
+
+```
+haipera notebook script.ipynb --num-apples 30
+```
+
+This will start a notebook server as usual with the provided configs, inside a dedicated folder inside `reports`.
+
+This turns out to be a convenient way to do _versioning_ for notebooks- if you have a notebook that you want to use for different data or different examples, instead of cloning 8 versions of the same notebook, you can just have a single notebook and 8 different config files for those notebooks!
+
+You can also run a Python script as a notebook, although usually there are probably not great reasons to do this.
 
 ## Demo on Google Colab
 You can also try our Google Colab version which allows you to run Haipera in the cloud. Check out our Colab demo using the following notebook: [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/12jY7Kr1Rupj-aJFjlIRgZf1x-nySQdoJ?usp=sharing)
