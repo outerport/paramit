@@ -20,8 +20,13 @@ from haipera.venv import (
     run_code_in_venv,
     find_package_file,
     generate_package_file,
+    is_package_installed_in_venv,
 )
-from haipera.nb import convert_ipynb_to_py, convert_source_code_to_ipynb
+from haipera.nb import (
+    convert_ipynb_to_py,
+    convert_source_code_to_ipynb,
+    is_jupyter_kernel_installed,
+)
 from haipera.constants import YELLOW, MAGENTA, GREEN, RED, RESET
 
 
@@ -582,6 +587,7 @@ def main():
     venv_path = find_venv_from_package_file(package_file)
     if not venv_path:
         venv_path = create_venv_and_install_packages(package_file)
+    print("This is running", venv_path)
 
     experiment_configs = generate_configs_from_hyperparameters(config, hyperparameters)
 
@@ -634,26 +640,40 @@ def main():
             run_code_in_venv(source_code, venv_path, experiment_dir)
 
         elif mode == HaiperaMode.NOTEBOOK:
-            if mode == HaiperaMode.NOTEBOOK:
+            ipykernel_is_installed = is_package_installed_in_venv(venv_path, "ipykernel")
+            if not ipykernel_is_installed:
+                print("ipykernel is not installed in venv. Installing now.", venv_path)
                 pip_path = get_pip_path(venv_path)
                 subprocess.run([pip_path, "install", "ipykernel"], check=True)
-            with open(os.path.join(experiment_dir, base_name + ".ipynb"), "w") as f:
+            subprocess.run([pip_path, "install", "ipykernel"], check=True)
+            notebook_path = os.path.join(experiment_dir, base_name + ".ipynb")
+            with open(notebook_path, "w") as f:
                 f.write(convert_source_code_to_ipynb(source_code))
             print("Starting Jupyter notebook server!\n")
             kernel_name = os.path.basename(os.path.dirname(path))
             python_path = get_python_path(venv_path)
+            if not is_jupyter_kernel_installed(kernel_name):
+                subprocess.run(
+                    [
+                        python_path,
+                        "-m",
+                        "ipykernel",
+                        "install",
+                        "--name",
+                        kernel_name,
+                        "--user",
+                    ],
+                    check=True,
+                )
             subprocess.run(
                 [
-                    python_path,
-                    "-m",
-                    "ipykernel",
-                    "install",
-                    "--name",
+                    "jupyter",
+                    "notebook",
+                    notebook_path,
+                    "--MultiKernelManager.default_kernel_name",
                     kernel_name,
-                    "--user",
+                    "--notebook-dir",
+                    experiment_dir,
                 ],
                 check=True,
-            )
-            subprocess.run(
-                ["jupyter", "notebook", "--notebook-dir", experiment_dir], check=True
             )

@@ -214,6 +214,17 @@ def create_venv_and_install_packages(package_file: str) -> str:
     return venv_path
 
 
+def is_package_installed_in_venv(venv_path: str, package_name: str) -> bool:
+    pip_path = get_pip_path(venv_path)
+    try:
+        subprocess.check_output(
+            [pip_path, "show", package_name], stderr=subprocess.DEVNULL
+        )
+        return True
+    except subprocess.CalledProcessError:
+        return False
+
+
 def run_code_in_venv(source_code: str, venv_path: str, cwd: str) -> None:
     with tempfile.NamedTemporaryFile("w", delete=False) as temp_file:
         temp_file.write(source_code)
