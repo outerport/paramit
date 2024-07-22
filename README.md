@@ -38,7 +38,13 @@ Other general features:
 
 #### What's next for haipera?
 
-We want to support things like logging, experiment tracking, GPU profiling, along with a central web dashboard for everything all without having to write any custom code. Let us know at info@haipera.com if you have opinions- or if you have dying problems or needs that you want us to hear! We're all ears.
+- bring-your-own-cloud GPU training infrastructure
+- automatic logging
+- automatic GPU profiling instrumentation
+- dashboard for GPU profile analytics w/ LLMs
+- experiment management web dashboard
+  
+Let us know at info@haipera.com if you have opinions- or if you have dying problems or needs that you want us to hear! We're all ears.
 
 ## Getting Started
 
