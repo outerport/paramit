@@ -47,26 +47,6 @@ class HaiperaParameter(BaseModel):
     values: List[Any]
 
 
-class VariableTransformer(cst.CSTTransformer):
-    ## TODO: Clean all the transformation code
-    def __init__(self, config: Dict[str, Union[str, int, float, bool]]):
-        self.config = config
-
-    def leave_Assign(
-        self, original_node: cst.Assign, updated_node: cst.Assign
-    ) -> cst.Assign:
-        if len(original_node.targets) == 1:
-            target = original_node.targets[0].target
-            if isinstance(target, cst.Name):
-                name = target.value
-                if name in self.config:
-                    value = self.config[name]
-                    return updated_node.with_changes(
-                        value=cst.parse_expression(repr(value))
-                    )
-        return updated_node
-
-
 class VariableVisitor(cst.CSTVisitor):
     METADATA_DEPENDENCIES = (PositionProvider,)
 
@@ -168,6 +148,41 @@ class VariableVisitor(cst.CSTVisitor):
         )
 
 
+class VariableTransformer(cst.CSTTransformer):
+    METADATA_DEPENDENCIES = (PositionProvider,)
+
+    ## TODO: Clean all the transformation code
+    ## Instead of taking in a config file, this should take in the same
+    ## HaiperaVariable objects that the VariableVisitor generates
+    ## and check against line and column numbers
+    def __init__(self, config: Dict[str, Union[str, int, float, bool]]):
+        self.config = config
+
+    def leave_Assign(
+        self, original_node: cst.Assign, updated_node: cst.Assign
+    ) -> cst.Assign:
+        if len(original_node.targets) == 1:
+            target = original_node.targets[0].target
+            if isinstance(target, cst.Name):
+                name = target.value
+                # pos = self.get_metadata(PositionProvider, original_node).start
+                if name in self.config:
+                    value = self.config[name]
+                    if isinstance(original_node.value, cst.SimpleString):
+                        value_node = cst.SimpleString(value=f"'{value}'")
+                    elif isinstance(original_node.value, cst.Name) and original_node.value.value in ["True", "False"]:
+                        value_node = cst.Name(value="True" if value else "False")
+                    elif isinstance(original_node.value, cst.Integer):
+                        value_node = cst.Integer(str(value))
+                    elif isinstance(original_node.value, cst.Float):
+                        value_node = cst.Float(str(value))
+                    else:
+                        raise ValueError(f"Unsupported type {type(value)}")
+                    return updated_node.with_changes(value=value_node)
+                        
+        return updated_node
+
+
 def find_variables(tree: cst.Module, path: str) -> List[HaiperaVariable]:
     """Find all variables, their values, and types in the given CST tree."""
     visitor = VariableVisitor(file_path=path)
@@ -258,8 +273,9 @@ def set_global_variables_from_config(
 ) -> cst.Module:
     """Set global variables in the given CST tree using the values from the config dictionary."""
     transformer = VariableTransformer(config["global"])
-    return tree.visit(transformer)
-
+    wrapper = cst.MetadataWrapper(tree)
+    modified_tree = wrapper.visit(transformer)
+    return modified_tree
 
 def help_in_args(args: List[str]) -> bool:
     """Check if the help flag is in the given list of arguments."""
@@ -564,10 +580,10 @@ def main():
         with open(os.path.join(experiment_dir, base_name + ".toml"), "wb") as f:
             tomli_w.dump(experiment_config, f)
 
-        set_global_variables_from_config(tree, experiment_config)
+        modified_tree = set_global_variables_from_config(tree, experiment_config)
 
         # Also save the script file
-        source_code = tree.code
+        source_code = modified_tree.code
         with open(os.path.join(experiment_dir, base_name + ".py"), "w") as f:
             f.write(source_code)
         # Also save the package file
