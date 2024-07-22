@@ -15,6 +15,7 @@ dependencies = [
     "nbconvert>=7.16.4",
     "nbformat>=5.10.4",
     "ipython>=8.26.0",
+    "libcst>=1.4.0",
 ]
 readme = "README.md"
 requires-python = ">= 3.9"
