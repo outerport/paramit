@@ -6,7 +6,7 @@ import uuid
 import tempfile
 import hashlib
 
-from typing import Optional
+from typing import Optional, List, Tuple
 
 import platformdirs
 import tomli
@@ -20,7 +20,8 @@ except ImportError:
     # This is needed for when git is not properly installed
     GIT_ENABLED = False
 
-from haipera.constants import YELLOW, RED, RESET
+from haipera.constants import RED, RESET
+from haipera.cuda import get_cuda_version
 
 __all__ = [
     "find_package_to_venv_config_file",
@@ -47,10 +48,30 @@ def get_pip_path(venv_path) -> str:
     return pip_path
 
 
-def hash_package_file(package_file: str) -> str:
-    with open(package_file, "r") as file:
-        # Read and split the file into lines
-        lines = file.readlines()
+def get_dependencies_from_package_file(package_file: str) -> List[str]:
+    # Check if the package_file a requirements.txt or pyproject.toml file
+    if os.path.basename(package_file) == "pyproject.toml":
+        # Get dependencies
+        with open(package_file, "r") as file:
+            content = file.read()
+            tomli_content = tomli.loads(content)
+            if "tool" in tomli_content and "poetry" in tomli_content["tool"]:
+                if "dependencies" in tomli_content["tool"]["poetry"]:
+                    dependencies = tomli_content["tool"]["poetry"].get(
+                        "dependencies", {}
+                    )
+                    lines = [f"{k}{v}" for k, v in dependencies.items()]
+            elif "project" in tomli_content:
+                if "dependencies" in tomli_content["project"]:
+                    dependencies = tomli_content["project"]["dependencies"]
+                    lines = [f"{k}{v}" for k, v in dependencies.items()]
+            else:
+                print(f"{RED}Error: Unsupported pyproject.toml file{RESET}")
+                sys.exit(1)
+    else:
+        with open(package_file, "r") as file:
+            # Read and split the file into lines
+            lines = file.readlines()
 
     # Remove whitespace and empty lines
     lines = [line.strip() for line in lines if line.strip()]
@@ -58,8 +79,13 @@ def hash_package_file(package_file: str) -> str:
     # Sort the lines
     sorted_lines = sorted(lines)
 
+    return sorted_lines
+
+
+def hash_dependencies(dependencies: List[str]) -> str:
+    sorted_dependencies = sorted(dependencies)
     # Join the sorted lines
-    content = "\n".join(sorted_lines)
+    content = "\n".join(sorted_dependencies)
 
     # Create a hash of the content
     return hashlib.sha256(content.encode()).hexdigest()
@@ -87,8 +113,9 @@ def find_venv_from_package_file(package_file: str) -> Optional[str]:
     with open(config_file_path, "rb") as f:
         config = tomli.load(f)
 
-    hash_key = hash_package_file(package_file)
-    print(hash_key)
+    dependencies = get_dependencies_from_package_file(package_file)
+    dependencies, _ = handle_special_cuda_dependencies(dependencies)
+    hash_key = hash_dependencies(dependencies)
     if hash_key in config:
         # Check that the venv path is valid
         venv_path = config[hash_key]
@@ -100,9 +127,37 @@ def find_venv_from_package_file(package_file: str) -> Optional[str]:
                 tomli_w.dump(config, f)
 
 
+def handle_special_cuda_dependencies(
+    dependencies: List[str],
+) -> Tuple[List[str], List[str]]:
+    """
+    Handle special dependencies that require a specific CUDA version.
+
+    Returns a tuple of two lists:
+    - The first list contains the dependencies, transformed to fit the CUDA requirements
+    - The second list contains the extra index URLs needed to install the dependencies
+    """
+    cuda_version = get_cuda_version()
+    if not cuda_version:
+        return dependencies, []
+    major, minor = cuda_version
+    transformed_dependencies = []
+    extra_index_urls = []
+
+    for dependency in dependencies:
+        if "torch" in dependency:
+            url = f"https://download.pytorch.org/whl/cu{major}{minor}"
+            extra_index_urls.append(url)
+            transformed_dependencies.append(dependency)
+        else:
+            transformed_dependencies.append(dependency)
+    return transformed_dependencies, extra_index_urls
+
+
 def create_venv_and_install_packages(package_file: str) -> str:
     user_cache_dir = platformdirs.user_cache_dir("haipera")
-    venv_path = os.path.join(user_cache_dir, str(uuid.uuid4()), ".venv")
+    unique_cache_path = os.path.join(user_cache_dir, str(uuid.uuid4()))
+    venv_path = os.path.join(unique_cache_path, ".venv")
     os.makedirs(venv_path, exist_ok=True)
     print(f"Creating virtual environment at {venv_path}")
     venv_result = subprocess.run(["python", "-m", "venv", venv_path], check=True)
@@ -123,18 +178,22 @@ def create_venv_and_install_packages(package_file: str) -> str:
 
     pip_path = get_pip_path(venv_path)
 
-    if (
-        os.path.exists(package_file)
-        and os.path.basename(package_file) == "requirements.txt"
-    ):
-        result = subprocess.run([pip_path, "install", "-r", package_file])
-    elif (
-        os.path.exists(package_file)
-        and os.path.basename(package_file) == "pyproject.toml"
-    ):
-        result = subprocess.run([pip_path, "install", "-e", package_file], check=True)
-    else:
-        print(f"{YELLOW}Warning: Invalid package file {package_file}{RESET}")
+    if not os.path.exists(package_file):
+        print(f"{RED}Error: Package file {package_file} does not exist{RESET}")
+        sys.exit(1)
+    dependencies = get_dependencies_from_package_file(package_file)
+    dependencies, extra_index_urls = handle_special_cuda_dependencies(dependencies)
+    requirement_path = os.path.join(unique_cache_path, "requirements.txt")
+    extra_index_url_requirements = [f"-i {url}" for url in extra_index_urls]
+    with open(requirement_path, "w") as f:
+        f.write("\n".join(extra_index_url_requirements))
+        f.write("\n")
+        f.write("\n".join(dependencies))
+
+    result = subprocess.run(
+        [pip_path, "install", "-r", requirement_path],
+        check=True,
+    )
 
     if result.returncode != 0:
         print(f"{RED}Error: Failed to install packages from {package_file}{RESET}")
@@ -145,7 +204,7 @@ def create_venv_and_install_packages(package_file: str) -> str:
     with open(config_file_path, "rb") as f:
         config = tomli.load(f)
 
-    hash_key = hash_package_file(package_file)
+    hash_key = hash_dependencies(dependencies)
     config[hash_key] = venv_path
     with open(config_file_path, "wb") as f:
         tomli_w.dump(config, f)
