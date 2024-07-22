@@ -1,8 +1,10 @@
 import os
 import sys
 import ast
+import libcst as cst
+from libcst.metadata import PositionProvider
 import datetime
-from typing import List, Any, Dict, Tuple, Optional
+from typing import List, Any, Dict, Tuple, Optional, Union
 from pydantic import BaseModel
 import tomli
 import tomli_w
@@ -13,6 +15,7 @@ from haipera.venv import (
     create_venv_and_install_packages,
     run_code_in_venv,
     find_package_file,
+    generate_package_file
 )
 from haipera.nb import convert_ipynb_to_py
 from haipera.constants import YELLOW, MAGENTA, GREEN, RED, RESET
@@ -23,10 +26,13 @@ class HaiperaVariable(BaseModel):
     value: Any
     type: str
     file_name: str
-    line_number: int
+    line: int
+    column: int
 
     def __str__(self):
-        return f"{self.name} = {self.value} ({self.type}) [{self.file_name}:{self.line_number}]"
+        return (
+            f"{self.name} = {self.value} ({self.type}) [{self.file_name}:{self.line}]"
+        )
 
 
 class HaiperaMetadata(BaseModel):
@@ -42,86 +48,148 @@ class HaiperaParameter(BaseModel):
     values: List[Any]
 
 
-def find_variables(tree: ast.AST, path: str) -> List[HaiperaVariable]:
-    """Find all variables, their values, and types in the given AST tree."""
-    variables = []
+class VariableVisitor(cst.CSTVisitor):
+    METADATA_DEPENDENCIES = (PositionProvider,)
 
-    class VariableVisitor(ast.NodeVisitor):
-        def __init__(self):
-            self.current_context = []
+    def __init__(self, file_path: str):
+        self.file_path = file_path
+        self.variables = []
+        self.current_context = []
 
-        def visit_Assign(self, node: ast.Assign):
-            for target in node.targets:
-                if isinstance(target, ast.Name) and isinstance(
-                    node.value, ast.Constant
-                ):
-                    self.add_variable(target.id, node.value, node.lineno)
-                elif (
-                    isinstance(target, ast.Attribute)
-                    and isinstance(node.value, ast.Constant)
-                    and isinstance(target.value, ast.Name)
-                    and target.value.id == "self"
-                ):
-                    pass
-                    # Disable for now
-                    # self.add_variable(target.attr, node.value, node.lineno)
-            self.generic_visit(node)
+    def visit_Assign(self, node: cst.Assign):
+        for target in node.targets:
+            if isinstance(target.target, cst.Name) and isinstance(
+                node.value, cst.Integer
+            ):
+                pos = self.get_metadata(PositionProvider, node).start
+                self.add_variable(
+                    target.target.value, node.value.value, pos.line, pos.column
+                )
+            elif isinstance(target.target, cst.Name) and isinstance(
+                node.value, cst.Float
+            ):
+                pos = self.get_metadata(PositionProvider, node).start
+                self.add_variable(
+                    target.target.value, node.value.value, pos.line, pos.column
+                )
+            elif isinstance(target.target, cst.Name) and isinstance(
+                node.value, cst.SimpleString
+            ):
+                pos = self.get_metadata(PositionProvider, node).start
+                self.add_variable(
+                    target.target.value,
+                    node.value.value.strip("'\""),
+                    pos.line,
+                    pos.column,
+                )
+            elif isinstance(target.target, cst.Name) and isinstance(
+                node.value, cst.Name
+            ):
+                if node.value.value == "True" or node.value.value == "False":
+                    pos = self.get_metadata(PositionProvider, node).start
+                    value = True if node.value.value == "True" else False
+                    self.add_variable(target.target.value, value, pos.line, pos.column)
+            elif (
+                isinstance(target.target, cst.Attribute)
+                and isinstance(node.value, cst.SimpleString)
+                and isinstance(target.target.value, cst.Name)
+                and target.target.value.value == "self"
+            ):
+                pass  # Disabled for now
 
-        def visit_Call(self, node: ast.Call):
-            if isinstance(node.func, ast.Name):
-                self.current_context.append(node.func.id)
-            elif isinstance(node.func, ast.Attribute):
-                self.current_context.append(node.func.attr)
+    def visit_Call(self, node: cst.Call):
+        if isinstance(node.func, cst.Name):
+            self.current_context.append(node.func.value)
+        elif isinstance(node.func, cst.Attribute):
+            self.current_context.append(node.func.attr.value)
 
-            # Disable for now
-            # print(self.current_context)
-            """
-            for keyword in node.keywords:
-                if isinstance(keyword.value, ast.Constant):
-                    self.add_variable(keyword.arg, keyword.value, node.lineno)
-            """
+        # Disabled for now
+        """
+        for arg in node.args:
+            if isinstance(arg, cst.Arg) and isinstance(arg.value, cst.SimpleString):
+                self.add_variable(arg.keyword.value if arg.keyword else None, arg.value)
+        """
 
-            self.generic_visit(node)
-
-            if self.current_context:
-                self.current_context.pop()
-
-        def visit_FunctionDef(self, node: ast.FunctionDef):
-            if node.name == "__init__":
-                if node.args.defaults:
-                    default_args = node.args.args[-len(node.args.defaults) :]
-                    for arg, default in zip(default_args, node.args.defaults):
-                        if isinstance(default, ast.Constant):
-                            # Disable for now
-                            # self.add_variable(arg.arg, default, node.lineno)
-                            pass
-            self.generic_visit(node)
-
-        def visit_ClassDef(self, node: ast.ClassDef):
-            self.current_context.append(node.name)
-            for base in node.bases:
-                if isinstance(base, ast.Call):
-                    self.visit_Call(base)
-            self.generic_visit(node)
+    def leave_Call(self, original_node: cst.Call):
+        if self.current_context:
             self.current_context.pop()
 
-        def add_variable(self, name: str, value: ast.Constant, lineno: int):
-            full_name = ".".join(self.current_context + [name]) if name else ""
-            variables.append(
-                HaiperaVariable(
-                    name=full_name,
-                    value=value.value,
-                    type=type(value.value).__name__,
-                    file_name=os.path.basename(path),
-                    line_number=lineno,
-                )
-            )
+    def visit_FunctionDef(self, node: cst.FunctionDef):
+        pass
+        """
+        if node.name.value == "__init__":
+            params = node.params
+            if params.default_params:
+                for param in params.default_params:
+                    if isinstance(param.default, cst.SimpleString):
+                        pass  # Disabled for now
+                        # self.add_variable(param.name.value, param.default)
+        """
 
-    visitor = VariableVisitor()
-    visitor.visit(tree)
-    # TODO: Create another visitor that looks at function calls, and if it finds an
-    # identical variable as the FunctionDef variable, change the value of the variable
-    return variables
+    def visit_ClassDef(self, node: cst.ClassDef):
+        self.current_context.append(node.name.value)
+        for base in node.bases:
+            if isinstance(base.value, cst.Call):
+                self.visit_Call(base.value)
+
+    def leave_ClassDef(self, original_node: cst.ClassDef):
+        self.current_context.pop()
+
+    def add_variable(self, name: str, value: Any, line: int, column: int):
+        full_name = ".".join(self.current_context + [name]) if name else ""
+        self.variables.append(
+            HaiperaVariable(
+                name=full_name,
+                value=value,
+                type=type(value).__name__,
+                file_name=os.path.basename(self.file_path),
+                line=line,
+                column=column,
+            )
+        )
+
+
+class VariableTransformer(cst.CSTTransformer):
+    METADATA_DEPENDENCIES = (PositionProvider,)
+
+    ## TODO: Clean all the transformation code
+    ## Instead of taking in a config file, this should take in the same
+    ## HaiperaVariable objects that the VariableVisitor generates
+    ## and check against line and column numbers
+    def __init__(self, config: Dict[str, Union[str, int, float, bool]]):
+        self.config = config
+
+    def leave_Assign(
+        self, original_node: cst.Assign, updated_node: cst.Assign
+    ) -> cst.Assign:
+        if len(original_node.targets) == 1:
+            target = original_node.targets[0].target
+            if isinstance(target, cst.Name):
+                name = target.value
+                # pos = self.get_metadata(PositionProvider, original_node).start
+                if name in self.config:
+                    value = self.config[name]
+                    if isinstance(original_node.value, cst.SimpleString):
+                        value_node = cst.SimpleString(value=f"'{value}'")
+                    elif isinstance(original_node.value, cst.Name) and original_node.value.value in ["True", "False"]:
+                        value_node = cst.Name(value="True" if value else "False")
+                    elif isinstance(original_node.value, cst.Integer):
+                        value_node = cst.Integer(str(value))
+                    elif isinstance(original_node.value, cst.Float):
+                        value_node = cst.Float(str(value))
+                    else:
+                        raise ValueError(f"Unsupported type {type(value)}")
+                    return updated_node.with_changes(value=value_node)
+                        
+        return updated_node
+
+
+def find_variables(tree: cst.Module, path: str) -> List[HaiperaVariable]:
+    """Find all variables, their values, and types in the given CST tree."""
+    visitor = VariableVisitor(file_path=path)
+    wrapper = cst.MetadataWrapper(tree)
+    wrapper.visit(visitor)
+    return visitor.variables
 
 
 def expand_paths_in_global_variables(
@@ -141,7 +209,8 @@ def expand_paths_in_global_variables(
                         value=expanded_path,
                         type=var.type,
                         file_name=var.file_name,
-                        line_number=var.line_number,
+                        line=var.line,
+                        column=var.column,
                     )
                 )
             else:
@@ -152,7 +221,7 @@ def expand_paths_in_global_variables(
 
 
 def generate_config_file(
-    tree: ast.AST,
+    tree: cst.Module,
     path: str,
 ) -> Tuple[Dict[str, Any], Optional[str]]:
     """Generate a TOML configuration file with the given global variables."""
@@ -177,8 +246,9 @@ def generate_config_file(
 
     if not package_file:
         print(
-            f"{YELLOW}Warning: No package file found, set the package_path manually in the config file{RESET}"
+            f"{YELLOW}Warning: No package file found, automatically creating one{RESET}"
         )
+        package_file = generate_package_file(os.path.dirname(script_path))
 
     metadata = HaiperaMetadata(
         version="0.1.7",
@@ -200,17 +270,14 @@ def load_config_file(path: str) -> dict:
         return tomli.load(f)
 
 
-def set_global_variables_from_config(tree: ast.AST, config: dict) -> None:
-    """Set global variables in the given AST tree using the values from the config dictionary."""
-    for node in ast.walk(tree):
-        if isinstance(node, ast.Assign):
-            for target in node.targets:
-                if isinstance(target, ast.Name):
-                    name = target.id
-                    if name in config["global"]:
-                        value = config["global"][name]
-                        node.value = ast.Constant(value=value)
-
+def set_global_variables_from_config(
+    tree: cst.Module, config: Dict[str, Dict[str, Union[str, int, float, bool]]]
+) -> cst.Module:
+    """Set global variables in the given CST tree using the values from the config dictionary."""
+    transformer = VariableTransformer(config["global"])
+    wrapper = cst.MetadataWrapper(tree)
+    modified_tree = wrapper.visit(transformer)
+    return modified_tree
 
 def help_in_args(args: List[str]) -> bool:
     """Check if the help flag is in the given list of arguments."""
@@ -435,12 +502,16 @@ def main():
         code = convert_ipynb_to_py(path)
 
     try:
-        tree = ast.parse(code)
+        # We do an extra check here to catch syntax errors w/ helpful messages
+        ast.parse(code)
     except SyntaxError as e:
         e.filename = path
         print(f"{RED}SyntaxError: {e}{RESET}")
         sys.exit(1)
-    config_path = path.replace(".py", ".toml").replace(".ipynb", ".toml")
+
+    tree = cst.parse_module(code)
+
+    config_path = path.replace(".py", ".toml")
 
     if help_in_args(sys.argv[3:]):
         generated_config_file, package_file = generate_config_file(tree, path)
@@ -511,10 +582,10 @@ def main():
         with open(os.path.join(experiment_dir, base_name + ".toml"), "wb") as f:
             tomli_w.dump(experiment_config, f)
 
-        set_global_variables_from_config(tree, experiment_config)
+        modified_tree = set_global_variables_from_config(tree, experiment_config)
 
         # Also save the script file
-        source_code = ast.unparse(tree)
+        source_code = modified_tree.code
         with open(os.path.join(experiment_dir, base_name + ".py"), "w") as f:
             f.write(source_code)
         # Also save the package file
