@@ -7,7 +7,7 @@ __all__ = [
     "convert_ipynb_to_py",
     "convert_py_to_ipynb",
     "convert_source_code_to_ipynb",
-    "is_kernel_installed_in_jupyter",
+    "is_jupyter_kernel_installed"
 ]
 
 
