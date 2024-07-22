@@ -19,7 +19,6 @@ dependencies = [
     "libcst>=1.4.0",
     "pipreqs @ git+https://github.com/haipera/pipreqs",
     "jupytext>=1.16.3",
-    "notebook>=7.2.1",
 ]
 readme = "README.md"
 requires-python = ">= 3.9"
