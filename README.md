@@ -10,6 +10,10 @@ Find the right parameters and track experiments for your model without all the b
 
 [Join our Discord server!](https://discord.gg/UtHcwJzW)
 
+<p align="center">
+    <img src="demo.gif" alt="Demo Gif for Haipera" width="700"/>
+</p>
+
 ## What is Haipera?
 
 Haipera is an open-source framework to take scripts _and_ notebooks and make them 'production ready'.
