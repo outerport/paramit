@@ -20,7 +20,7 @@ except ImportError:
     # This is needed for when git is not properly installed
     GIT_ENABLED = False
 
-from haipera.constants import YELLOW, RED, RESET
+from haipera.constants import RED, RESET
 from haipera.cuda import get_cuda_version
 
 __all__ = [
