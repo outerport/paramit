@@ -1,12 +1,37 @@
-import nbformat
-from nbconvert import PythonExporter
+import os
 
-__all__ = ["convert_ipynb_to_py"]
+import jupytext
+from jupyter_core.paths import jupyter_path
+
+__all__ = [
+    "convert_ipynb_to_py",
+    "convert_py_to_ipynb",
+    "convert_source_code_to_ipynb",
+    "is_kernel_installed_in_jupyter",
+]
 
 
 def convert_ipynb_to_py(ipynb_file: str) -> str:
-    with open(ipynb_file, "r", encoding="utf-8") as nb_file:
-        nb_contents = nbformat.read(nb_file, as_version=4)
-    exporter = PythonExporter()
-    py_contents, _ = exporter.from_notebook_node(nb_contents)
+    notebook = jupytext.read(ipynb_file)
+    py_contents = jupytext.writes(notebook, fmt="py:percent")
     return py_contents
+
+
+def convert_py_to_ipynb(py_file: str) -> str:
+    notebook = jupytext.read(py_file)
+    ipynb_contents = jupytext.writes(notebook, fmt="ipynb")
+    return ipynb_contents
+
+
+def convert_source_code_to_ipynb(source_code: str) -> str:
+    notebook = jupytext.reads(source_code, fmt="py:percent")
+    ipynb_contents = jupytext.writes(notebook, fmt="ipynb")
+    return ipynb_contents
+
+
+def is_jupyter_kernel_installed(kernel_name):
+    for kernel_dir in jupyter_path("kernels"):
+        spec_file = os.path.join(kernel_dir, kernel_name, "kernel.json")
+        if os.path.exists(spec_file):
+            return True
+    return False
