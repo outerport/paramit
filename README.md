@@ -24,7 +24,7 @@ Haipera is an open-source framework to take scripts _and_ notebooks and make the
 - 🐳 **Deploy on virtualenv for reproducible experiments.** Takes care of all the virtual environments (with auto-updates) of your code for maximum reproducibility of experiments.
 - 🤖 **Setup grid search from CLI.** Use the command line to directly iterate through hyperparameters.
 - 🪵 **Automatic experiment logging.** Automatically generates per-experiment output folders with reproducible configs.
-- ☁️ **Hosted on the Cloud (coming soon!).** Run everything locally, or send your model to Haipera Cloud for parallel experimentation.
+- ☁️ **Hosted on the Cloud (coming soon!).** Run everything locally, or send your model to Haipera Cloud or your own cloud accounts for parallel experimentation.
 
 Other general features:
 
