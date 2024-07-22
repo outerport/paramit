@@ -7,7 +7,6 @@
 #   all-features: false
 #   with-sources: false
 #   generate-hashes: false
-#   universal: false
 
 -e file:.
 annotated-types==0.7.0
@@ -63,6 +62,8 @@ jupyter-core==5.7.2
     # via nbformat
 jupyterlab-pygments==0.3.0
     # via nbconvert
+libcst==1.4.0
+    # via haipera
 markupsafe==2.1.5
     # via jinja2
     # via nbconvert
@@ -107,6 +108,8 @@ pygments==2.18.0
     # via nbconvert
 python-dateutil==2.9.0.post0
     # via jupyter-client
+pyyaml==6.0.1
+    # via libcst
 pyzmq==26.0.3
     # via jupyter-client
 referencing==0.35.1
