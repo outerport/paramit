@@ -15,6 +15,7 @@ from haipera.venv import (
     create_venv_and_install_packages,
     run_code_in_venv,
     find_package_file,
+    generate_package_file
 )
 from haipera.nb import convert_ipynb_to_py
 from haipera.constants import YELLOW, MAGENTA, GREEN, RED, RESET
@@ -245,8 +246,9 @@ def generate_config_file(
 
     if not package_file:
         print(
-            f"{YELLOW}Warning: No package file found, set the package_path manually in the config file{RESET}"
+            f"{YELLOW}Warning: No package file found, automatically creating one{RESET}"
         )
+        package_file = generate_package_file(os.path.dirname(script_path))
 
     metadata = HaiperaMetadata(
         version="0.1.7",

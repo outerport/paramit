@@ -3,7 +3,8 @@ name = "haipera"
 version = "0.1.7"
 description = "Hassle-free configs, logging, and cluster management for research projects."
 authors = [
-    { name = "Towaki Takikawa", email = "tovacinni@gmail.com" }
+    { name = "Towaki Takikawa", email = "tovacinni@gmail.com" },
+    { name = "Allen Wang", email = "allen.houze.wang@gmail.com" }
 ]
 dependencies = [
     "pydantic>=2.7.4",
@@ -16,6 +17,7 @@ dependencies = [
     "nbformat>=5.10.4",
     "ipython>=8.26.0",
     "libcst>=1.4.0",
+    "pipreqs @ git+https://github.com/haipera/pipreqs",
 ]
 readme = "README.md"
 requires-python = ">= 3.9"
