@@ -117,10 +117,10 @@ haipera run reports/experiment/script.toml
 
 ## Using haipera with Jupyter Notebooks
 
-You can even run haipera with Jupyter notebooks! Using `haipera run` on a notebook file will run the notebook as a script. 
+You can even run haipera with Jupyter notebooks! Using `haipera run` on a notebook file will run the notebook as a script. This is convenient when you want to develop your script inside a notebook environment, but then scale out your runs across a bunch of parameters.
 
 ```
-haipera run script.ipynb --num-apples 30
+haipera run script.ipynb --num-apples 30,40,50
 ```
 
 If you instead want to spin up a notebook with your chosen config, and have it run in an isolated environment (inside the generated `reports` folder), you can simply run the notebook with `haipera notebook`:
