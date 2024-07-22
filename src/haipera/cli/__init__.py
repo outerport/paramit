@@ -192,7 +192,6 @@ class VariableTransformer(cst.CSTTransformer):
                     else:
                         raise ValueError(f"Unsupported type {type(value)}")
                     return updated_node.with_changes(value=value_node)
-
         return updated_node
 
 

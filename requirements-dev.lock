@@ -30,7 +30,7 @@ defusedxml==0.7.1
     # via nbconvert
 docopt==0.6.2
     # via pipreqs
-exceptiongroup==1.2.1
+exceptiongroup==1.2.2
     # via ipython
     # via pytest
 executing==2.0.1
@@ -114,16 +114,16 @@ prompt-toolkit==3.0.47
     # via ipython
 ptyprocess==0.7.0
     # via pexpect
-pure-eval==0.2.2
+pure-eval==0.2.3
     # via stack-data
-pydantic==2.7.4
+pydantic==2.8.2
     # via haipera
-pydantic-core==2.18.4
+pydantic-core==2.20.1
     # via pydantic
 pygments==2.18.0
     # via ipython
     # via nbconvert
-pytest==8.2.2
+pytest==8.3.1
 python-dateutil==2.9.0.post0
     # via jupyter-client
 pyyaml==6.0.1
