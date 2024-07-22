@@ -265,3 +265,10 @@ def find_package_file(directory: str) -> Optional[str]:
             pass
 
     return None
+
+def generate_package_file(directory: str) -> str:
+    """Generate a requirements.txt with pipreqs"""
+    directory = os.path.abspath(directory)
+    subprocess.run(['pipreqs', directory, '--debug'], check=True)
+
+    return os.path.join(directory, 'requirements.txt')
