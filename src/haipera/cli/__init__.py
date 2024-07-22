@@ -582,9 +582,6 @@ def main():
     venv_path = find_venv_from_package_file(package_file)
     if not venv_path:
         venv_path = create_venv_and_install_packages(package_file)
-        if mode == HaiperaMode.NOTEBOOK:
-            pip_path = get_pip_path(venv_path)
-            subprocess.run([pip_path, "install", "ipykernel"], check=True)
 
     experiment_configs = generate_configs_from_hyperparameters(config, hyperparameters)
 
@@ -637,6 +634,9 @@ def main():
             run_code_in_venv(source_code, venv_path, experiment_dir)
 
         elif mode == HaiperaMode.NOTEBOOK:
+            if mode == HaiperaMode.NOTEBOOK:
+                pip_path = get_pip_path(venv_path)
+                subprocess.run([pip_path, "install", "ipykernel"], check=True)
             with open(os.path.join(experiment_dir, base_name + ".ipynb"), "w") as f:
                 f.write(convert_source_code_to_ipynb(source_code))
             print("Starting Jupyter notebook server!\n")
