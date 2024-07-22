@@ -65,13 +65,22 @@ jupyter-core==5.7.2
     # via nbformat
 jupyterlab-pygments==0.3.0
     # via nbconvert
+jupytext==1.16.3
+    # via haipera
 libcst==1.4.0
     # via haipera
+markdown-it-py==3.0.0
+    # via jupytext
+    # via mdit-py-plugins
 markupsafe==2.1.5
     # via jinja2
     # via nbconvert
 matplotlib-inline==0.1.7
     # via ipython
+mdit-py-plugins==0.4.1
+    # via jupytext
+mdurl==0.1.2
+    # via markdown-it-py
 mistune==3.0.2
     # via nbconvert
 nbclient==0.10.0
@@ -81,9 +90,11 @@ nbconvert==7.16.4
     # via pipreqs
 nbformat==5.10.4
     # via haipera
+    # via jupytext
     # via nbclient
     # via nbconvert
 packaging==24.1
+    # via jupytext
     # via nbconvert
     # via pytest
 pandocfilters==1.5.1
@@ -116,6 +127,7 @@ pytest==8.2.2
 python-dateutil==2.9.0.post0
     # via jupyter-client
 pyyaml==6.0.1
+    # via jupytext
     # via libcst
 pyzmq==26.0.3
     # via jupyter-client
@@ -143,6 +155,7 @@ tinycss2==1.3.0
     # via nbconvert
 tomli==2.0.1
     # via haipera
+    # via jupytext
     # via pytest
 tomli-w==1.0.0
     # via haipera

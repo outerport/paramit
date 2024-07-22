@@ -18,12 +18,18 @@ dependencies = [
     "ipython>=8.26.0",
     "libcst>=1.4.0",
     "pipreqs @ git+https://github.com/haipera/pipreqs",
+    "jupytext>=1.16.3",
 ]
 readme = "README.md"
 requires-python = ">= 3.9"
 
 [project.scripts]
 haipera = "haipera.cli:main"
+
+[project.optional-dependencies]
+notebook = [
+    "notebook>=7.2.1",
+]
 
 [build-system]
 requires = ["hatchling"]

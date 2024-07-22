@@ -24,6 +24,8 @@ from haipera.constants import RED, RESET
 from haipera.cuda import get_cuda_version
 
 __all__ = [
+    "get_python_path",
+    "get_pip_path",
     "find_package_to_venv_config_file",
     "find_venv_from_package_file",
     "create_venv_and_install_packages",
@@ -266,9 +268,10 @@ def find_package_file(directory: str) -> Optional[str]:
 
     return None
 
+
 def generate_package_file(directory: str) -> str:
     """Generate a requirements.txt with pipreqs"""
     directory = os.path.abspath(directory)
-    subprocess.run(['pipreqs', directory, '--debug'], check=True)
+    subprocess.run(["pipreqs", directory, "--debug"], check=True)
 
-    return os.path.join(directory, 'requirements.txt')
+    return os.path.join(directory, "requirements.txt")
