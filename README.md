@@ -1,4 +1,4 @@
-## Haipera: Convert Python scripts and notebooks to reproducible production code
+## Haipera: Convert Python scripts and notebooks to reproducible cloud deployments
 
 <img src="haipera_logo.jpg" alt="Haipera Logo" width="300"/>
 
