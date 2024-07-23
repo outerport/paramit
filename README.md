@@ -9,7 +9,7 @@
 
 [日本語のREADMEはこちら！](README_JA.md)
 
-Find the right parameters and track experiments for your model without all the boilerplate.
+Find the right parameters and track experiments for your ML models without all the boilerplate, and run 100s of experiments all at once with 1 command.
 
 [Join our Discord server!](https://discord.gg/UtHcwJzW)
 
