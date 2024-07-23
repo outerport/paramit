@@ -1,4 +1,4 @@
-## Haipera: Convert Python scripts and notebooks to reproducible cloud deployments
+## Haipera: Python scripts/notebooks to reproducible cloud deployments
 
 <img src="haipera_logo.jpg" alt="Haipera Logo" width="300"/>
 
@@ -9,7 +9,7 @@
 
 [日本語のREADMEはこちら！](README_JA.md)
 
-Find the right parameters and track experiments for your ML models without all the boilerplate, and run 100s of experiments all at once with 1 command.
+Automatically track hyperparameters your ML models without the boilerplate, and run 100s of experiments all at once, with 1 command.
 
 [Join our Discord server!](https://discord.gg/UtHcwJzW)
 
@@ -19,13 +19,13 @@ Find the right parameters and track experiments for your ML models without all t
 
 ## What is Haipera?
 
-Haipera is an open-source framework to take scripts _and_ notebooks and make them 'production ready'.
+Haipera is an open-source framework to take scripts _and_ notebooks and make them **production ready**.
 
 - 🦥 **Config files without any code.** Automatically probes the source code to generate reproducible config files.
 - 🐳 **Deploy on virtualenv for reproducible experiments.** Takes care of all the virtual environments (with auto-updates) of your code for maximum reproducibility of experiments.
-- 🤖 **Setup grid search from CLI.** Use the command line to directly iterate through hyperparameters.
+- 🤖 **Grid search from CLI.** Use the command line to directly iterate through hyperparameters.
 - 🪵 **Automatic experiment logging.** Automatically generates per-experiment output folders with reproducible configs.
-- ☁️ **Hosted on the Cloud (coming soon!).** Run everything locally, or send your model to Haipera Cloud or your own cloud accounts for parallel experimentation.
+- ☁️ **Scale to the Cloud (coming soon!).** Run everything locally, or send your model to Haipera Cloud or your own Cloud for parallel experimentation.
 
 Other general features:
 
@@ -44,8 +44,8 @@ Other general features:
 - automatic GPU profiling instrumentation
 - dashboard for GPU profile analytics w/ LLMs
 - experiment management web dashboard
-  
-Let us know at info@haipera.com if you have opinions- or if you have dying problems or needs that you want us to hear! We're all ears.
+
+Let us know at info@haipera.com if you have opinions - or if you have dying problems or needs that you want us to hear! We're all ears.
 
 ## Getting Started
 
@@ -92,15 +92,15 @@ And in the same folder, you may have a `requirements.txt` that lists the depende
 numpy
 ```
 
-This is a superficial example, but say you want to start experimenting with this code. You'll probably adjust `num_apples` and `apple_price` manually at first, but eventually you'll lose track of what changes caused the differences in the results, unless you diligently keep a lab notebook. 
+Say you want to start experimenting with code like this. You'll probably adjust `num_apples` and `apple_price` manually at first, but eventually you'll lose track of what changes caused the differences in the results.
 
-To properly keep track of things, you need to often make it possible to edit these variables from command line interfaces, set up a notebook, set up a JSON or YAML file to keep track of this, log the outputs in a logging service, save the outputs / configs in a separate experiment folder, etc. There's a lot of work involved in making experimentation reproducible.
+To properly keep track of things, you may write code to load these variables from command line interfaces, set up a notebook, write dense JSON or YAML files, log the outputs in a logging service, save the outputs / configs in a separate experiment folder, etc. There's a lot of grunt work involved in making experimentation reproducible.
 
 Haipera is designed to solve this. With haipera you can edit variables on the fly, which you can view with:
 
 ```
 haipera run script.py --help
-``` 
+```
 
 When you run haipera, you can pass in arguments without ever setting up `argparse`:
 ```
