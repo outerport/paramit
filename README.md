@@ -92,7 +92,7 @@ And in the same folder, you may have a `requirements.txt` that lists the depende
 numpy
 ```
 
-Say you want to start experimenting with a code like this. You'll probably adjust `num_apples` and `apple_price` manually at first, but eventually you'll lose track of what changes caused the differences in the results.
+Say you want to start experimenting with code like this. You'll probably adjust `num_apples` and `apple_price` manually at first, but eventually you'll lose track of what changes caused the differences in the results.
 
 To properly keep track of things, you may write code to load these variables from command line interfaces, set up a notebook, write dense JSON or YAML files, log the outputs in a logging service, save the outputs / configs in a separate experiment folder, etc. There's a lot of grunt work involved in making experimentation reproducible.
 
