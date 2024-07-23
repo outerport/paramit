@@ -7,6 +7,7 @@
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/12jY7Kr1Rupj-aJFjlIRgZf1x-nySQdoJ?usp=sharing)
 [![Twitter](https://img.shields.io/twitter/follow/haipera_ai?style=social)](https://twitter.com/haipera_ai)
 
+[English](README.md) | [Japanese](README_JA.md)
 
 Find the right parameters and track experiments for your model without all the boilerplate.
 
