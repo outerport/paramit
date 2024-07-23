@@ -12,7 +12,7 @@
 [ディスコード!](https://discord.gg/UtHcwJzW)
 
 <p align="center">
-    <img src="demo.gif" alt="Demo Gif for Haipera" width="700"/>
+    <img src="demo.jpg" alt="Demo image for Haipera" width="700"/>
 </p>
 
 ## Haiperaってなに？
