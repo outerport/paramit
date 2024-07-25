@@ -535,7 +535,15 @@ def main():
             sys.exit(1)
 
         with open(config["meta"]["script_path"], "r") as f:
-            code = f.read()
+            if config["meta"]["script_path"].endswith(".ipynb"):
+                code = convert_ipynb_to_py(config["meta"]["script_path"])
+            elif config["meta"]["script_path"].endswith(".py"):
+                code = f.read()
+            else:
+                print(
+                    f"{RED}Error: Python file {config['meta']['script_path']} is not a Python or Notebook file{RESET}"
+                )
+                sys.exit(1)
 
     elif path.endswith(".py"):
         with open(path, "r") as f:
@@ -638,6 +646,12 @@ def main():
         if mode == HaiperaMode.RUN:
             with open(os.path.join(experiment_dir, base_name + ".py"), "w") as f:
                 f.write(source_code)
+
+            if path.endswith(".ipynb"):
+                notebook_path = os.path.join(experiment_dir, base_name + ".ipynb")
+                with open(notebook_path, "w") as f:
+                    f.write(convert_source_code_to_ipynb(source_code))
+        
             print("Running experiment!\n")
             run_code_in_venv(source_code, venv_path, experiment_dir)
 
