@@ -9,7 +9,7 @@
 
 [日本語のREADMEはこちら！](README_JA.md)
 
-Automatically track hyperparameters your ML models without the boilerplate, and run 100s of experiments all at once, with 1 command.
+Automatically track hyperparameters for your ML models without the boilerplate, and run 100s of experiments all at once, with 1 command.
 
 [Sign up on our waitlist for updates!](https://docs.google.com/forms/d/e/1FAIpQLSer1jjQKapYnNbyBCnpMBB4Nv2kmm7MnFp7t25ISYA7mlH6WA/viewform)
 
