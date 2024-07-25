@@ -269,7 +269,7 @@ def generate_config_file(
         # package_file = generate_package_file(os.path.dirname(script_path))
 
     metadata = HaiperaMetadata(
-        version="0.1.8",
+        version="0.1.9",
         created_on=str(datetime.datetime.now()),
         script_path=os.path.abspath(script_path),
         package_path=package_file if package_file else "",
