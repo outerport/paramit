@@ -18,6 +18,7 @@ dependencies = [
     "ipython>=8.26.0",
     "libcst>=1.4.0",
     "jupytext>=1.16.3",
+    "requests>=2.32.3",
 ]
 readme = "README.md"
 requires-python = ">= 3.9"
