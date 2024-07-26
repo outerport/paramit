@@ -29,6 +29,7 @@ from haipera.nb import (
 )
 from haipera.constants import YELLOW, MAGENTA, GREEN, RED, RESET
 
+sys.stdout.reconfigure(line_buffering=True)
 
 class HaiperaMode(enum.Enum):
     RUN = "run"

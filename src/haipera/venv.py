@@ -66,7 +66,7 @@ def get_dependencies_from_package_file(package_file: str) -> List[str]:
             elif "project" in tomli_content:
                 if "dependencies" in tomli_content["project"]:
                     dependencies = tomli_content["project"]["dependencies"]
-                    lines = [f"{k}{v}" for k, v in dependencies.items()]
+                    lines = [x for x in dependencies]
             else:
                 print(f"{RED}Error: Unsupported pyproject.toml file{RESET}")
                 sys.exit(1)
