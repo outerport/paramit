@@ -270,7 +270,7 @@ def generate_config_file(
         # package_file = generate_package_file(os.path.dirname(script_path))
 
     metadata = HaiperaMetadata(
-        version="0.1.10",
+        version="0.1.11",
         created_on=str(datetime.datetime.now()),
         script_path=os.path.abspath(script_path),
         package_path=package_file if package_file else "",
@@ -377,6 +377,11 @@ def expand_args_dict(args_dict: Dict[str, str]) -> Dict[str, HaiperaParameter]:
         else:
             value_type = str
             values = [value_type(v) for v in values]
+            # Make paths absolute if the argument exists as a path
+            for i, v in enumerate(values):
+                if os.path.exists(v):
+                    values[i] = os.path.abspath(v)
+
 
         hyperparameters[arg] = HaiperaParameter(
             name=arg, type=type(values[0]).__name__, values=values
