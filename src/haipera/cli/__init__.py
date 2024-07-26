@@ -19,7 +19,6 @@ from haipera.venv import (
     create_venv_and_install_packages,
     run_code_in_venv,
     find_package_file,
-    generate_package_file,
     is_package_installed_in_venv,
 )
 from haipera.nb import (
@@ -30,6 +29,7 @@ from haipera.nb import (
 from haipera.constants import YELLOW, MAGENTA, GREEN, RED, RESET
 
 sys.stdout.reconfigure(line_buffering=True)
+
 
 class HaiperaMode(enum.Enum):
     RUN = "run"
@@ -270,7 +270,7 @@ def generate_config_file(
         # package_file = generate_package_file(os.path.dirname(script_path))
 
     metadata = HaiperaMetadata(
-        version="0.1.9",
+        version="0.1.10",
         created_on=str(datetime.datetime.now()),
         script_path=os.path.abspath(script_path),
         package_path=package_file if package_file else "",
@@ -652,7 +652,7 @@ def main():
                 notebook_path = os.path.join(experiment_dir, base_name + ".ipynb")
                 with open(notebook_path, "w") as f:
                     f.write(convert_source_code_to_ipynb(source_code))
-        
+
             print("Running experiment!\n")
             run_code_in_venv(source_code, venv_path, experiment_dir)
 
