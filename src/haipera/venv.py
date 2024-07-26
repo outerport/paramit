@@ -186,7 +186,9 @@ def create_venv_and_install_packages(package_file: str) -> str:
     dependencies = get_dependencies_from_package_file(package_file)
     dependencies, extra_index_urls = handle_special_cuda_dependencies(dependencies)
     requirement_path = os.path.join(unique_cache_path, "requirements.txt")
-    extra_index_url_requirements = [f"-i {url}" for url in extra_index_urls]
+    extra_index_url_requirements = [
+        f"--extra-index-url {url}" for url in extra_index_urls
+    ]
     with open(requirement_path, "w") as f:
         f.write("\n".join(extra_index_url_requirements))
         f.write("\n")
