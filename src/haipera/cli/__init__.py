@@ -364,6 +364,11 @@ def expand_args_dict(args_dict: Dict[str, str]) -> Dict[str, HaiperaParameter]:
         else:
             value_type = str
             values = [value_type(v) for v in values]
+            # Make paths absolute if the argument exists as a path
+            for i, v in enumerate(values):
+                if os.path.exists(v):
+                    values[i] = os.path.abspath(v)
+
 
         hyperparameters[arg] = HaiperaParameter(
             name=arg, type=type(values[0]).__name__, values=values
