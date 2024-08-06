@@ -24,7 +24,6 @@ Automatically track hyperparameters for your ML models without the boilerplate, 
 Haipera is an open-source framework to take scripts _and_ notebooks and make them **production ready**.
 
 - 🦥 **Config files without any code.** Automatically probes the source code to generate reproducible config files.
-- 🐳 **Deploy on virtualenv for reproducible experiments.** Takes care of all the virtual environments (with auto-updates) of your code for maximum reproducibility of experiments.
 - 🤖 **Grid search from CLI.** Use the command line to directly iterate through hyperparameters.
 - 🪵 **Automatic experiment logging.** Automatically generates per-experiment output folders with reproducible configs.
 - ☁️ **Scale to the Cloud (coming soon!).** Run everything locally, or send your model to Haipera Cloud or your own Cloud for parallel experimentation.
@@ -33,7 +32,6 @@ Other general features:
 
 - supports running `.ipynb` notebook files as scripts
 - supports running a notebook server (with configs)
-- cached virtual environments
 - debug as usual with `pdb`
 - supports Windows, Linux, OSX
 - saves console logs along with configs
@@ -104,12 +102,18 @@ Haipera is designed to solve this. With haipera you can edit variables on the fl
 haipera run script.py --help
 ```
 
+By default, haipera will try to use the default `python3` interpreter to run your code. If you want to specify a speciifc Python interpreter to use, set the environment variable:
+
+```
+HAIPERA_PYTHON_PATH=/path/to/your/python/interpreter
+```
+
 When you run haipera, you can pass in arguments without ever setting up `argparse`:
 ```
 haipera run script.py --num-apples 30
 ```
 
-This will also invoke a build of a virtual environment to run the code in, and generate a `script.toml` configuration file.
+This will also generate a `script.toml` configuration file.
 
 You can run these generated config files directly:
 
