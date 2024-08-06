@@ -4,7 +4,7 @@ import ast
 import libcst as cst
 from libcst.metadata import PositionProvider
 import datetime
-from typing import List, Any, Dict, Tuple, Optional, Union
+from typing import List, Any, Dict, Union
 from pydantic import BaseModel
 import tomli
 import tomli_w
@@ -12,15 +12,9 @@ import uuid
 import enum
 import subprocess
 from copy import deepcopy
-from haipera.venv import (
-    get_python_path,
-    get_pip_path,
-    find_venv_from_package_file,
-    create_venv_and_install_packages,
-    run_code_in_venv,
-    find_package_file,
-    is_package_installed_in_venv,
-)
+import subprocess_tee
+import tempfile
+import shutil
 from haipera.nb import (
     convert_ipynb_to_py,
     convert_source_code_to_ipynb,
@@ -55,7 +49,7 @@ class HaiperaMetadata(BaseModel):
     version: str
     created_on: str
     script_path: str
-    package_path: str
+    python_path: str
 
 
 class HaiperaParameter(BaseModel):
@@ -240,7 +234,7 @@ def expand_paths_in_global_variables(
 def generate_config_file(
     tree: cst.Module,
     path: str,
-) -> Tuple[Dict[str, Any], Optional[str]]:
+) -> Dict[str, Any]:
     """Generate a TOML configuration file with the given global variables."""
     global_vars = find_variables(tree, path)
     global_vars = expand_paths_in_global_variables(global_vars, path)
@@ -259,26 +253,18 @@ def generate_config_file(
                 current_dict = current_dict[part]
             current_dict[parts[-1]] = var.value
 
-    package_file = find_package_file(os.path.dirname(script_path))
-
-    if not package_file:
-        print(
-            # f"{YELLOW}Warning: No package file found, automatically creating one{RESET}"
-            f"{YELLOW}Warning: No package file found, set the package_path manually in the config file{RESET}"
-        )
-        # TODO: Find dependency sol to pipreqs
-        # package_file = generate_package_file(os.path.dirname(script_path))
+    python_path = get_python_path()
 
     metadata = HaiperaMetadata(
-        version="0.1.11",
+        version="0.1.12",
         created_on=str(datetime.datetime.now()),
         script_path=os.path.abspath(script_path),
-        package_path=package_file if package_file else "",
+        python_path=python_path if python_path else "",
     )
 
     config["meta"] = metadata.model_dump()
 
-    return config, package_file
+    return config
 
 
 def load_config_file(path: str) -> dict:
@@ -487,6 +473,78 @@ def print_usage():
     print("    notebook - Start a Jupyter notebook server with the script or notebook")
 
 
+def get_python_path() -> str:
+    # Check a haipera specific environment variable
+    if "HAIPERA_PYTHON_PATH" in os.environ:
+        return os.environ["HAIPERA_PYTHON_PATH"]
+
+    # Check for VIRTUAL_ENV first (covers venv and conda environments)
+    if "VIRTUAL_ENV" in os.environ:
+        return os.path.join(os.environ["VIRTUAL_ENV"], "bin", "python")
+
+    # Check for CONDA_PREFIX (specific to conda environments)
+    if "CONDA_PREFIX" in os.environ:
+        return os.path.join(os.environ["CONDA_PREFIX"], "bin", "python")
+
+    # Look for python3 or python in PATH
+    for cmd in ["python3", "python"]:
+        python_path = shutil.which(cmd)
+        if python_path:
+            return python_path
+
+    # If still not found, try common locations
+    common_locations = [
+        "/usr/bin/python3",
+        "/usr/local/bin/python3",
+        "/usr/bin/python",
+        "/usr/local/bin/python",
+        "C:\\Python\\python.exe",
+        "C:\\Program Files\\Python\\python.exe",
+    ]
+    for location in common_locations:
+        if os.path.exists(location):
+            return location
+    raise FileNotFoundError(
+        "Could not find a Python interpreter. Please set the HAIPERA_PYTHON_PATH environment variable."
+    )
+
+
+def is_package_installed(package_name: str) -> bool:
+    python_path = get_python_path()
+    try:
+        result = subprocess.run(
+            [python_path, "-m", "pip", "show", package_name],
+            capture_output=True,
+            text=True,
+        )
+        return result.returncode == 0
+    except subprocess.CalledProcessError:
+        return False
+
+
+def run_code(source_code: str, python_path: str, cwd: str) -> None:
+    with tempfile.NamedTemporaryFile("w", delete=False) as temp_file:
+        temp_file.write(source_code)
+        temp_file_path = temp_file.name
+
+    log_file_path = os.path.join(cwd, "console.log")
+    try:
+        output = subprocess_tee.run(
+            f"{python_path} -u {temp_file_path}",
+            cwd=cwd,
+            shell=True,
+        )
+
+        # Save
+        with open(log_file_path, "w") as f:
+            f.write(output.stdout)
+
+    except subprocess.CalledProcessError as e:
+        return e.stderr
+    finally:
+        os.unlink(temp_file_path)
+
+
 def main():
     if len(sys.argv) < 3:
         print_usage()
@@ -570,40 +628,29 @@ def main():
     config_path = path.replace(".py", ".toml").replace(".ipynb", ".toml")
 
     if help_in_args(sys.argv[3:]):
-        generated_config_file, package_file = generate_config_file(tree, path)
+        generated_config_file = generate_config_file(tree, path)
         print(f"{MAGENTA}Usage: haipera run <path_to_python_file> [args]{RESET}")
         pretty_print_config(generated_config_file)
-
-        if not package_file:
-            sys.exit(0)
         sys.exit(0)
+
     elif not os.path.exists(config_path):
-        generated_config, package_file = generate_config_file(tree, path)
+        generated_config = generate_config_file(tree, path)
         with open(config_path, "wb") as f:
             tomli_w.dump(generated_config, f)
 
-        if not package_file:
-            sys.exit(0)
     elif not path.endswith(".toml"):
         print(
             f"{YELLOW}Warning: Configuration file {config_path} already exists{RESET}"
         )
         overwrite = input("Do you want to overwrite it? (y/n): ")
         if overwrite.lower() == "y":
-            generated_config, package_file = generate_config_file(tree, path)
+            generated_config = generate_config_file(tree, path)
 
             with open(config_path, "wb") as f:
                 tomli_w.dump(generated_config, f)
 
-            if not package_file:
-                sys.exit(0)
-
     config = load_config_file(config_path)
-    package_file = config["meta"]["package_path"]
-    venv_path = find_venv_from_package_file(package_file)
-    if not venv_path:
-        venv_path = create_venv_and_install_packages(package_file)
-    print("This is running", venv_path)
+    python_path = config["meta"]["python_path"]
 
     experiment_configs = generate_configs_from_hyperparameters(config, hyperparameters)
 
@@ -640,13 +687,6 @@ def main():
 
         modified_tree = set_global_variables_from_config(tree, experiment_config)
 
-        # Also save the package file
-        with open(
-            os.path.join(experiment_dir, os.path.basename(package_file)), "wb"
-        ) as f:
-            with open(package_file, "rb") as p:
-                f.write(p.read())
-
         source_code = modified_tree.code
 
         if mode == HaiperaMode.RUN:
@@ -658,24 +698,22 @@ def main():
                 with open(notebook_path, "w") as f:
                     f.write(convert_source_code_to_ipynb(source_code))
 
-            print("Running experiment!\n")
-            run_code_in_venv(source_code, venv_path, experiment_dir)
+            print(f"Running with the Python interpreter at {python_path}")
+            run_code(source_code, python_path, experiment_dir)
 
         elif mode == HaiperaMode.NOTEBOOK:
-            ipykernel_is_installed = is_package_installed_in_venv(
-                venv_path, "ipykernel"
-            )
+            ipykernel_is_installed = is_package_installed("ipykernel")
             if not ipykernel_is_installed:
-                print("ipykernel is not installed in venv. Installing now.", venv_path)
-                pip_path = get_pip_path(venv_path)
-                subprocess.run([pip_path, "install", "ipykernel"], check=True)
-            subprocess.run([pip_path, "install", "ipykernel"], check=True)
+                print(
+                    "ipykernel is not installed. Please install it to use notebook mode"
+                )
+                sys.exit(1)
+
             notebook_path = os.path.join(experiment_dir, base_name + ".ipynb")
             with open(notebook_path, "w") as f:
                 f.write(convert_source_code_to_ipynb(source_code))
             print("Starting Jupyter notebook server!\n")
             kernel_name = os.path.basename(os.path.dirname(path))
-            python_path = get_python_path(venv_path)
             if not is_jupyter_kernel_installed(kernel_name):
                 subprocess.run(
                     [
