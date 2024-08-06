@@ -1,4 +1,4 @@
-## Haipera: Python scripts/notebooks to reproducible cloud deployments
+## Haipera: Parameterize Python scripts/notebooks all from the command line
 
 <img src="haipera_logo.jpg" alt="Haipera Logo" width="300"/>
 
