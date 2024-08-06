@@ -256,7 +256,7 @@ def generate_config_file(
     python_path = get_python_path()
 
     metadata = HaiperaMetadata(
-        version="0.1.11",
+        version="0.1.12",
         created_on=str(datetime.datetime.now()),
         script_path=os.path.abspath(script_path),
         python_path=python_path if python_path else "",
