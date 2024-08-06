@@ -254,7 +254,6 @@ def generate_config_file(
             current_dict[parts[-1]] = var.value
 
     python_path = get_python_path()
-    print(f"Python path: {python_path}")
 
     metadata = HaiperaMetadata(
         version="0.1.11",
@@ -699,7 +698,7 @@ def main():
                 with open(notebook_path, "w") as f:
                     f.write(convert_source_code_to_ipynb(source_code))
 
-            print("Running experiment!\n")
+            print(f"Running with the Python interpreter at {python_path}")
             run_code(source_code, python_path, experiment_dir)
 
         elif mode == HaiperaMode.NOTEBOOK:
