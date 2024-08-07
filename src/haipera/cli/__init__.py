@@ -20,6 +20,9 @@ from haipera.nb import (
     convert_source_code_to_ipynb,
     is_jupyter_kernel_installed,
 )
+from haipera.cloud import (
+    run_code_on_cloud
+)
 from haipera.constants import YELLOW, MAGENTA, GREEN, RED, RESET
 
 sys.stdout.reconfigure(line_buffering=True)
@@ -558,11 +561,6 @@ def main():
 
     mode = HaiperaMode(sys.argv[1])
 
-    if mode == HaiperaMode.CLOUD:
-        print(
-            f"{MAGENTA}Cloud runs are in development. Please sign up on the waitlist for updates at https://www.haipera.com{RESET}"
-        )
-        sys.exit(1)
 
     path = sys.argv[2]
     if not os.path.exists(path):
@@ -571,6 +569,10 @@ def main():
 
     cli_args = parse_args(sys.argv[3:])
     hyperparameters = expand_args_dict(cli_args)
+
+    if mode == HaiperaMode.CLOUD:
+        run_code_on_cloud(path, sys.argv[3:])
+        sys.exit(0)
 
     if (
         not path.endswith(".py")
@@ -642,7 +644,8 @@ def main():
         print(
             f"{YELLOW}Warning: Configuration file {config_path} already exists{RESET}"
         )
-        overwrite = input("Do you want to overwrite it? (y/n): ")
+        print("Do you want to overwrite it? (y/n): ")
+        overwrite = sys.stdin.readline()
         if overwrite.lower() == "y":
             generated_config = generate_config_file(tree, path)
 
@@ -656,7 +659,8 @@ def main():
 
     if len(experiment_configs) > 100:
         print(f"{YELLOW}Warning: Running {len(experiment_configs)} experiments{RESET}")
-        confirm = input("Do you want to continue? (y/n): ")
+        print("Do you want to continue? (y/n): ")
+        confirm = sys.stdin.readline()
         if confirm.lower() != "y":
             sys.exit(0)
     elif len(experiment_configs) == 0:

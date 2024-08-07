@@ -7,6 +7,7 @@
 #   all-features: false
 #   with-sources: false
 #   generate-hashes: false
+#   universal: false
 
 -e file:.
 annotated-types==0.7.0
@@ -20,6 +21,10 @@ beautifulsoup4==4.12.3
     # via nbconvert
 bleach==6.1.0
     # via nbconvert
+certifi==2024.7.4
+    # via requests
+charset-normalizer==3.3.2
+    # via requests
 decorator==5.1.1
     # via ipython
 defusedxml==0.7.1
@@ -35,6 +40,8 @@ gitdb==4.0.11
     # via gitpython
 gitpython==3.1.43
     # via haipera
+idna==3.7
+    # via requests
 iniconfig==2.0.0
     # via pytest
 ipython==8.26.0
@@ -122,6 +129,8 @@ pyzmq==26.0.3
 referencing==0.35.1
     # via jsonschema
     # via jsonschema-specifications
+requests==2.32.3
+    # via haipera
 rpds-py==0.19.0
     # via jsonschema
     # via referencing
@@ -159,6 +168,8 @@ typing-extensions==4.12.2
     # via ipython
     # via pydantic
     # via pydantic-core
+urllib3==2.2.2
+    # via requests
 wcwidth==0.2.13
     # via prompt-toolkit
 webencodings==0.5.1
