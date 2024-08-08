@@ -7,6 +7,8 @@
 
 [日本語のREADMEはこちら！](README_JA.md)
 
+**Paramit was recently renamed from Haipera to Paramit. Make sure you `pip uninstall haipera` first.**
+
 Automatically track hyperparameters for your ML models without the boilerplate, and run 100s of experiments all at once, with 1 command.
 
 Built by Haipera.
