@@ -1,15 +1,15 @@
-## Haipera: Parameterize Python scripts/notebooks all from the command line
+## Paramit: Parameterize Python scripts/notebooks all from the command line
 
-<img src="haipera_logo.jpg" alt="Haipera Logo" width="300"/>
-
-[![License](https://img.shields.io/github/license/haipera/haipera)](https://github.com/haipera/haipera/blob/main/LICENSE)
-[![GitHub stars](https://img.shields.io/github/stars/haipera/haipera)](https://github.com/haipera/haipera/stargazers)
+[![License](https://img.shields.io/github/license/haipera/paramit)](https://github.com/haipera/paramit/blob/main/LICENSE)
+[![GitHub stars](https://img.shields.io/github/stars/haipera/paramit)](https://github.com/haipera/paramit/stargazers)
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/12jY7Kr1Rupj-aJFjlIRgZf1x-nySQdoJ?usp=sharing)
 [![Twitter](https://img.shields.io/twitter/follow/haipera_ai?style=social)](https://twitter.com/haipera_ai)
 
 [日本語のREADMEはこちら！](README_JA.md)
 
 Automatically track hyperparameters for your ML models without the boilerplate, and run 100s of experiments all at once, with 1 command.
+
+Built by Haipera.
 
 [Sign up on our waitlist for updates!](https://docs.google.com/forms/d/e/1FAIpQLSer1jjQKapYnNbyBCnpMBB4Nv2kmm7MnFp7t25ISYA7mlH6WA/viewform)
 
@@ -19,9 +19,9 @@ Automatically track hyperparameters for your ML models without the boilerplate, 
     <img src="demo.jpg" alt="Demo image for Haipera" width="700"/>
 </p>
 
-## What is Haipera?
+## What is Paramit?
 
-Haipera is an open-source framework to take scripts _and_ notebooks and make them **production ready**.
+Paramit is an open-source framework to take scripts _and_ notebooks and make them **production ready**.
 
 - 🦥 **Config files without any code.** Automatically probes the source code to generate reproducible config files.
 - 🤖 **Grid search from CLI.** Use the command line to directly iterate through hyperparameters.
@@ -37,7 +37,7 @@ Other general features:
 - saves console logs along with configs
 - artifacts (images, models, etc) are also saved to separate experiment folders
 
-#### What's next for haipera?
+#### What's next for Paramit?
 
 - bring-your-own-cloud GPU training infrastructure
 - automatic logging
@@ -51,16 +51,16 @@ Let us know at info@haipera.com if you have opinions - or if you have dying prob
 
 
 
-Install haipera:
+Install Paramit:
 
 ```
-pip install haipera
+pip install paramit
 ```
 
 If you want to use the notebook hosting, you can do
 
 ```
-pip install "haipera[notebook]"
+pip install "paramit[notebook]"
 ```
 
 On Linux, you'll have to install a `venv` package, like:
@@ -71,7 +71,7 @@ apt install python3.10-venv
 
 Make sure you have a `requirements.txt` file where `script.py` or any Python script you want to run is (or alternatively, somewhere in the Git repo for the script).
 
-## Example of using haipera
+## Example of using paramit
 
 In a typical project, you may set up a script like:
 
@@ -96,21 +96,21 @@ Say you want to start experimenting with code like this. You'll probably adjust 
 
 To properly keep track of things, you may write code to load these variables from command line interfaces, set up a notebook, write dense JSON or YAML files, log the outputs in a logging service, save the outputs / configs in a separate experiment folder, etc. There's a lot of grunt work involved in making experimentation reproducible.
 
-Haipera is designed to solve this. With haipera you can edit variables on the fly, which you can view with:
+Paramit is designed to solve this. With paramit you can edit variables on the fly, which you can view with:
 
 ```
-haipera run script.py --help
+paramit run script.py --help
 ```
 
-By default, haipera will try to use the default `python3` interpreter to run your code. If you want to specify a speciifc Python interpreter to use, set the environment variable:
+By default, paramit will try to use the default `python3` interpreter to run your code. If you want to specify a speciifc Python interpreter to use, set the environment variable:
 
 ```
-HAIPERA_PYTHON_PATH=/path/to/your/python/interpreter
+PARAMIT_PYTHON_PATH=/path/to/your/python/interpreter
 ```
 
-When you run haipera, you can pass in arguments without ever setting up `argparse`:
+When you run paramit, you can pass in arguments without ever setting up `argparse`:
 ```
-haipera run script.py --num-apples 30
+paramit run script.py --num-apples 30
 ```
 
 This will also generate a `script.toml` configuration file.
@@ -118,35 +118,35 @@ This will also generate a `script.toml` configuration file.
 You can run these generated config files directly:
 
 ```
-haipera run script.toml
+paramit run script.toml
 ```
 
 You can also set up grid searches over parameters by:
 
 ```
-haipera run script.py --num-apples 30,60 --apple-price 1.0,2.0
+paramit run script.py --num-apples 30,60 --apple-price 1.0,2.0
 ```
 
-Running `haipera` will also generate a `reports` folder where you run `haipera` from, with isolated experiment outputs in that folder.
+Running `paramit` will also generate a `reports` folder where you run `paramit` from, with isolated experiment outputs in that folder.
 
 You can then re-run existing configs reproducibly with:
 
 ```
-haipera run reports/experiment/script.toml
+paramit run reports/experiment/script.toml
 ```
 
-## Using haipera with Jupyter Notebooks
+## Using paramit with Jupyter Notebooks
 
-You can even run haipera with Jupyter notebooks! Using `haipera run` on a notebook file will run the notebook as a script. This is convenient when you want to develop your script inside a notebook environment, but then scale out your runs across a bunch of parameters.
-
-```
-haipera run script.ipynb --num-apples 30,40,50
-```
-
-If you instead want to spin up a notebook with your chosen config, and have it run in an isolated environment (inside the generated `reports` folder), you can simply run the notebook with `haipera notebook`:
+You can even run paramit with Jupyter notebooks! Using `paramit run` on a notebook file will run the notebook as a script. This is convenient when you want to develop your script inside a notebook environment, but then scale out your runs across a bunch of parameters.
 
 ```
-haipera notebook script.ipynb --num-apples 30
+paramit run script.ipynb --num-apples 30,40,50
+```
+
+If you instead want to spin up a notebook with your chosen config, and have it run in an isolated environment (inside the generated `reports` folder), you can simply run the notebook with `paramit notebook`:
+
+```
+paramit notebook script.ipynb --num-apples 30
 ```
 
 This will start a notebook server as usual with the provided configs, inside a dedicated folder inside `reports`.
@@ -156,12 +156,12 @@ This turns out to be a convenient way to do _versioning_ for notebooks- if you h
 You can also run a Python script as a notebook, although usually there are probably not great reasons to do this.
 
 ## Demo on Google Colab
-You can also try our Google Colab version which allows you to run Haipera in the cloud. Check out our Colab demo using the following notebook: [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/12jY7Kr1Rupj-aJFjlIRgZf1x-nySQdoJ?usp=sharing)
+You can also try our Google Colab version which allows you to run Paramit in the cloud. Check out our Colab demo using the following notebook: [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/12jY7Kr1Rupj-aJFjlIRgZf1x-nySQdoJ?usp=sharing)
 
 
 ## More examples
 
-See https://github.com/haipera/haipera-samples for more complex examples that you can try running haipera on.
+See https://github.com/haipera/haipera-samples for more complex examples that you can try running paramit on.
 
 
 ## Have issues?
