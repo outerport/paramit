@@ -15,23 +15,23 @@ from copy import deepcopy
 import subprocess_tee
 import tempfile
 import shutil
-from haipera.nb import (
+from paramit.nb import (
     convert_ipynb_to_py,
     convert_source_code_to_ipynb,
     is_jupyter_kernel_installed,
 )
-from haipera.constants import YELLOW, MAGENTA, GREEN, RED, RESET
+from paramit.constants import YELLOW, MAGENTA, GREEN, RED, RESET
 
 sys.stdout.reconfigure(line_buffering=True)
 
 
-class HaiperaMode(enum.Enum):
+class ParamitMode(enum.Enum):
     RUN = "run"
     CLOUD = "cloud"
     NOTEBOOK = "notebook"
 
 
-class HaiperaVariable(BaseModel):
+class ParamitVariable(BaseModel):
     name: str
     value: Any
     type: str
@@ -45,14 +45,14 @@ class HaiperaVariable(BaseModel):
         )
 
 
-class HaiperaMetadata(BaseModel):
+class ParamitMetadata(BaseModel):
     version: str
     created_on: str
     script_path: str
     python_path: str
 
 
-class HaiperaParameter(BaseModel):
+class ParamitParameter(BaseModel):
     name: str
     type: str
     values: List[Any]
@@ -148,7 +148,7 @@ class VariableVisitor(cst.CSTVisitor):
     def add_variable(self, name: str, value: Any, line: int, column: int):
         full_name = ".".join(self.current_context + [name]) if name else ""
         self.variables.append(
-            HaiperaVariable(
+            ParamitVariable(
                 name=full_name,
                 value=value,
                 type=type(value).__name__,
@@ -164,7 +164,7 @@ class VariableTransformer(cst.CSTTransformer):
 
     ## TODO: Clean all the transformation code
     ## Instead of taking in a config file, this should take in the same
-    ## HaiperaVariable objects that the VariableVisitor generates
+    ## ParamitVariable objects that the VariableVisitor generates
     ## and check against line and column numbers
     def __init__(self, config: Dict[str, Union[str, int, float, bool]]):
         self.config = config
@@ -195,7 +195,7 @@ class VariableTransformer(cst.CSTTransformer):
         return updated_node
 
 
-def find_variables(tree: cst.Module, path: str) -> List[HaiperaVariable]:
+def find_variables(tree: cst.Module, path: str) -> List[ParamitVariable]:
     """Find all variables, their values, and types in the given CST tree."""
     visitor = VariableVisitor(file_path=path)
     wrapper = cst.MetadataWrapper(tree)
@@ -204,8 +204,8 @@ def find_variables(tree: cst.Module, path: str) -> List[HaiperaVariable]:
 
 
 def expand_paths_in_global_variables(
-    global_vars: List[HaiperaVariable], script_path: str
-) -> List[HaiperaVariable]:
+    global_vars: List[ParamitVariable], script_path: str
+) -> List[ParamitVariable]:
     """Expand the path in the given global variables using the script path."""
     expanded_vars = []
     for var in global_vars:
@@ -215,7 +215,7 @@ def expand_paths_in_global_variables(
             )
             if os.path.exists(expanded_path):
                 expanded_vars.append(
-                    HaiperaVariable(
+                    ParamitVariable(
                         name=var.name,
                         value=expanded_path,
                         type=var.type,
@@ -255,7 +255,7 @@ def generate_config_file(
 
     python_path = get_python_path()
 
-    metadata = HaiperaMetadata(
+    metadata = ParamitMetadata(
         version="0.1.12",
         created_on=str(datetime.datetime.now()),
         script_path=os.path.abspath(script_path),
@@ -319,8 +319,8 @@ def parse_args(args: List[str]) -> Dict[str, Any]:
     return args_dict
 
 
-def expand_args_dict(args_dict: Dict[str, str]) -> Dict[str, HaiperaParameter]:
-    """Parse the value in the args according to the special haipera syntax.
+def expand_args_dict(args_dict: Dict[str, str]) -> Dict[str, ParamitParameter]:
+    """Parse the value in the args according to the special paramit syntax.
 
     The syntax is as follows:
         "123,126,128" -> [123, 126, 128]
@@ -369,7 +369,7 @@ def expand_args_dict(args_dict: Dict[str, str]) -> Dict[str, HaiperaParameter]:
                     values[i] = os.path.abspath(v)
 
 
-        hyperparameters[arg] = HaiperaParameter(
+        hyperparameters[arg] = ParamitParameter(
             name=arg, type=type(values[0]).__name__, values=values
         )
 
@@ -387,12 +387,12 @@ def pretty_print_config(config: Dict[str, Any]) -> None:
 
 
 def generate_configs_from_hyperparameters(
-    base_config: Dict[str, Any], hyperparameters: Dict[str, HaiperaParameter]
+    base_config: Dict[str, Any], hyperparameters: Dict[str, ParamitParameter]
 ) -> List[Dict[str, Any]]:
     """Generate a list of configurations from the base config and hyperparameters."""
 
-    hyperparameters_range: List[HaiperaParameter] = []
-    hyperparameters_single: List[HaiperaParameter] = []
+    hyperparameters_range: List[ParamitParameter] = []
+    hyperparameters_single: List[ParamitParameter] = []
     for hyperparameter in hyperparameters:
         if len(hyperparameters[hyperparameter].values) > 1:
             hyperparameters_range.append(hyperparameters[hyperparameter])
@@ -464,7 +464,7 @@ def generate_configs_from_hyperparameters(
 
 def print_usage():
     print(
-        f"{MAGENTA}Usage: haipera [run | cloud | notebook] <path_to_python_or_toml_file>{RESET}"
+        f"{MAGENTA}Usage: paramit [run | cloud | notebook] <path_to_python_or_toml_file>{RESET}"
     )
     print()
     print("commands")
@@ -474,7 +474,7 @@ def print_usage():
 
 
 def get_python_path() -> str:
-    # Check a haipera specific environment variable
+    # Check a paramit specific environment variable
     if "HAIPERA_PYTHON_PATH" in os.environ:
         return os.environ["HAIPERA_PYTHON_PATH"]
 
@@ -551,14 +551,14 @@ def main():
         sys.exit(1)
 
     try:
-        mode = HaiperaMode(sys.argv[1])
+        mode = ParamitMode(sys.argv[1])
     except ValueError:
         print_usage()
         sys.exit(1)
 
-    mode = HaiperaMode(sys.argv[1])
+    mode = ParamitMode(sys.argv[1])
 
-    if mode == HaiperaMode.CLOUD:
+    if mode == ParamitMode.CLOUD:
         print(
             f"{MAGENTA}Cloud runs are in development. Please sign up on the waitlist for updates at https://www.haipera.com{RESET}"
         )
@@ -586,10 +586,10 @@ def main():
         config = load_config_file(path)
 
         try:
-            HaiperaMetadata(**config["meta"])
+            ParamitMetadata(**config["meta"])
         except Exception:
             print(
-                f"{RED}Error: The config file is not a valid haipera config file{RESET}"
+                f"{RED}Error: The config file is not a valid paramit config file{RESET}"
             )
 
         if not os.path.exists(config["meta"]["script_path"]):
@@ -629,7 +629,7 @@ def main():
 
     if help_in_args(sys.argv[3:]):
         generated_config_file = generate_config_file(tree, path)
-        print(f"{MAGENTA}Usage: haipera run <path_to_python_file> [args]{RESET}")
+        print(f"{MAGENTA}Usage: paramit run <path_to_python_file> [args]{RESET}")
         pretty_print_config(generated_config_file)
         sys.exit(0)
 
@@ -667,7 +667,7 @@ def main():
     else:
         print(f"{GREEN}Running {len(experiment_configs)} experiments{RESET}")
 
-    if mode == HaiperaMode.NOTEBOOK and len(experiment_configs) > 1:
+    if mode == ParamitMode.NOTEBOOK and len(experiment_configs) > 1:
         print("Notebook mode only supports running a single experiment")
         sys.exit(1)
 
@@ -689,7 +689,7 @@ def main():
 
         source_code = modified_tree.code
 
-        if mode == HaiperaMode.RUN:
+        if mode == ParamitMode.RUN:
             with open(os.path.join(experiment_dir, base_name + ".py"), "w") as f:
                 f.write(source_code)
 
@@ -701,7 +701,7 @@ def main():
             print(f"Running with the Python interpreter at {python_path}")
             run_code(source_code, python_path, experiment_dir)
 
-        elif mode == HaiperaMode.NOTEBOOK:
+        elif mode == ParamitMode.NOTEBOOK:
             ipykernel_is_installed = is_package_installed("ipykernel")
             if not ipykernel_is_installed:
                 print(

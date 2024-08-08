@@ -1,7 +1,7 @@
 [project]
-name = "haipera"
-version = "0.1.12"
-description = "Hassle-free configs, logging, and cluster management for research projects."
+name = "paramit"
+version = "0.2.0"
+description = "Parameterize Python scripts/notebooks all from the command line."
 authors = [
     { name = "Towaki Takikawa", email = "tovacinni@gmail.com" },
     { name = "Allen Wang", email = "allen.houze.wang@gmail.com" }
@@ -23,7 +23,8 @@ readme = "README.md"
 requires-python = ">= 3.9"
 
 [project.scripts]
-haipera = "haipera.cli:main"
+haipera = "paramit.cli:main"
+paramit = "paramit.cli:main"
 
 [project.optional-dependencies]
 notebook = [
@@ -44,4 +45,4 @@ dev-dependencies = [
 allow-direct-references = true
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/haipera"]
+packages = ["src/paramit"]

@@ -1,9 +1,7 @@
-## Haipera:コードを書かなくても始められるPythonスクリプトやNotebookの設定管理！
+## paramit:コードを書かなくても始められるPythonスクリプトやNotebookの設定管理！
 
-<img src="haipera_logo.jpg" alt="Haipera Logo" width="300"/>
-
-[![License](https://img.shields.io/github/license/haipera/haipera)](https://github.com/haipera/haipera/blob/main/LICENSE)
-[![GitHub stars](https://img.shields.io/github/stars/haipera/haipera)](https://github.com/haipera/haipera/stargazers)
+[![License](https://img.shields.io/github/license/haipera/paramit)](https://github.com/haipera/paramit/blob/main/LICENSE)
+[![GitHub stars](https://img.shields.io/github/stars/haipera/paramit)](https://github.com/haipera/paramit/stargazers)
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/12jY7Kr1Rupj-aJFjlIRgZf1x-nySQdoJ?usp=sharing)
 [![Twitter](https://img.shields.io/twitter/follow/haipera_ai?style=social)](https://twitter.com/haipera_ai)
 
@@ -12,12 +10,12 @@
 [ディスコード!](https://discord.gg/UtHcwJzW)
 
 <p align="center">
-    <img src="demo.jpg" alt="Demo image for Haipera" width="700"/>
+    <img src="demo.jpg" alt="Demo image for paramit" width="700"/>
 </p>
 
-## Haiperaってなに？
+## paramitってなに？
 
-Haiperaは、スクリプトとノートブックからカスタムなコードを書かなくても「実験管理」を可能にするオープンソースフレームワークです。
+paramitは、スクリプトとノートブックからカスタムなコードを書かなくても「実験管理」を可能にするオープンソースフレームワークです。
 
 - 🦥 **コード不要のコンフィグファイル。** ソースコードを自動解析して再現可能な設定ファイルを生成。
 - 🐳 **仮想環境でデプロイして実験の再現性を確保。** 実験の再現性を最大化するため、仮想環境をすべて管理。
@@ -28,7 +26,7 @@ Haiperaは、スクリプトとノートブックからカスタムなコード�
 
 その他機能：
 
-- `pip install haipera` だけでインストール！
+- `pip install paramit` だけでインストール！
 - .ipynbノートブックファイルをスクリプトとして実行可能
 - ノートブックサーバーの実行をサポート（設定管理付き！）
 - 仮想環境のキャッシュ機能
@@ -47,16 +45,16 @@ Haiperaは、スクリプトとノートブックからカスタムなコード�
 
 ご意見などありましたら、info@haipera.comまでお知らせください。また、解決したい切実な問題やニーズがあれば、いつでもお聞かせください！Twitterなどでも大丈夫です[@yongyuanxi](https://x.com/yongyuanxi)。
 
-## Haiperaのはじめかた
+## paramitのはじめかた
 
 インストール：
 ```
-pip install haipera
+pip install paramit
 ```
 
 ノートブック機能を使うには：
 ```
-pip install "haipera[notebook]"
+pip install "paramit[notebook]"
 ```
 
 Linux環境だとVenv用のパッケージをインストールする必要があります。
@@ -66,7 +64,7 @@ apt install python3.10-venv
 
 `script.py`や実行したいPythonスクリプトがある場所（または代替として、スクリプトのGitリポジトリ内のどこか）に`requirements.txt`ファイルがあることを確認してください。
 
-## Haiperaの使い方
+## paramitの使い方
 
 Pythonで色々と実験してる時、以下のようなスクリプトを書くことがあります：
 
@@ -95,56 +93,56 @@ numpy
 
 実験を再現可能にするには**多くの作業**が必要で複雑なプロジェクトになると大変な量のボイラープレートが発生したりします。
 
-Haiperaはこれを解決するために設計されています。Haiperaを使用すると、変数を設定管理のフレームワークを使用しなくても編集できます。
+paramitはこれを解決するために設計されています。paramitを使用すると、変数を設定管理のフレームワークを使用しなくても編集できます。
 
 ```
-haipera run script.py --help
+paramit run script.py --help
 ``` 
 
-Haiperaを実行すると、`argparse`を設定しなくても引数を渡すことができます：
+paramitを実行すると、`argparse`を設定しなくても引数を渡すことができます：
 
 ```
-haipera run script.py --num-apples 30
+paramit run script.py --num-apples 30
 ```
 
-Haiperaを走らせると、コードを実行するための仮想環境のビルドが呼び出され、`script.toml`設定ファイルが生成されます。
+paramitを走らせると、コードを実行するための仮想環境のビルドが呼び出され、`script.toml`設定ファイルが生成されます。
 
 生成された設定ファイルを直接実行することもできます：
 
 ```
-haipera run script.toml
+paramit run script.toml
 ```
 
 パラメータのグリッドサーチを設定することもできます（例えばこの例だと４つの実験がスケジュールされます）：
 
 ```
-haipera run script.py --num-apples 30,60 --apple-price 1.0,2.0
+paramit run script.py --num-apples 30,60 --apple-price 1.0,2.0
 ```
 
-haiperaを実行すると、haiperaを実行した場所にreportsフォルダが生成され、そのフォルダ内に独立した実験出力が保存されます。
+paramitを実行すると、paramitを実行した場所にreportsフォルダが生成され、そのフォルダ内に独立した実験出力が保存されます。
 
 既存の設定を再現可能に再実行するには：
 
 ```
-haipera run reports/experiment/script.toml
+paramit run reports/experiment/script.toml
 ```
 
-## Using haipera with Jupyter Notebooks
+## Using paramit with Jupyter Notebooks
 
-JupyterノートブックでもHaiperaを実行できます！
+Jupyterノートブックでもparamitを実行できます！
 
-ノートブックファイルで`haipera run`を使用すると、ノートブックをスクリプトとして実行します。
+ノートブックファイルで`paramit run`を使用すると、ノートブックをスクリプトとして実行します。
 
 これは、ノートブック環境でスクリプトを開発し、その後多くのパラメータにわたって実行をスケールアウトしたい場合に便利です。
 
 ```
-haipera run script.ipynb --num-apples 30,40,50
+paramit run script.ipynb --num-apples 30,40,50
 ```
 
-CLIからの設定でノートブックを起動し、分離された環境（生成されたreportsフォルダ内）で実行したい場合は、`haipera notebook`を使うことでノートブックサーバーを実行できます：
+CLIからの設定でノートブックを起動し、分離された環境（生成されたreportsフォルダ内）で実行したい場合は、`paramit notebook`を使うことでノートブックサーバーを実行できます：
 
 ```
-haipera notebook script.ipynb --num-apples 30
+paramit notebook script.ipynb --num-apples 30
 ```
 
 これにより、提供された設定で通常通りノートブックサーバーが起動し、reports内の専用フォルダ内で実行されます。
@@ -153,12 +151,12 @@ Reports内で生成された設定（Config）ファイルはノートブック�
 
 ## Demo on Google Colab
 
-クラウドでHaiperaを実行できるGoogle Colabバージョンも試すことができます:  [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/12jY7Kr1Rupj-aJFjlIRgZf1x-nySQdoJ?usp=sharing)
+クラウドでparamitを実行できるGoogle Colabバージョンも試すことができます:  [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/12jY7Kr1Rupj-aJFjlIRgZf1x-nySQdoJ?usp=sharing)
 
 ## More examples
 
-Haiperaで実行できるより複雑な例については、https://github.com/haipera/haipera-samples をご覧ください。
+paramitで実行できるより複雑な例については、https://github.com/haipera/haipera-samples をご覧ください。
 
 ## Have issues?
 
-Haiperaはまだ初期段階にあるため、バグがある可能性が高いです。GitHubでイシューを立てるか、Discordサーバーでコメントするか、support@haipera.comまでメールを送っていただければ、できるだけ早く解決するよう努めます！
+paramitはまだ初期段階にあるため、バグがある可能性が高いです。GitHubでイシューを立てるか、Discordサーバーでコメントするか、support@haipera.comまでメールを送っていただければ、できるだけ早く解決するよう努めます！
