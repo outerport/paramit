@@ -1,7 +1,5 @@
 ## Haipera: Parameterize Python scripts/notebooks all from the command line
 
-<img src="haipera_logo.jpg" alt="Haipera Logo" width="300"/>
-
 [![License](https://img.shields.io/github/license/haipera/haipera)](https://github.com/haipera/haipera/blob/main/LICENSE)
 [![GitHub stars](https://img.shields.io/github/stars/haipera/haipera)](https://github.com/haipera/haipera/stargazers)
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/12jY7Kr1Rupj-aJFjlIRgZf1x-nySQdoJ?usp=sharing)
