@@ -256,7 +256,7 @@ def generate_config_file(
     python_path = get_python_path()
 
     metadata = ParamitMetadata(
-        version="0.2.1",
+        version="0.2.4",
         created_on=str(datetime.datetime.now()),
         script_path=os.path.abspath(script_path),
         python_path=python_path if python_path else "",
