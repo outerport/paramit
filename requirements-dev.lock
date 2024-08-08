@@ -35,9 +35,12 @@ gitdb==4.0.11
     # via gitpython
 gitpython==3.1.43
     # via paramit
+importlib-metadata==8.2.0
+    # via jupyter-client
+    # via nbconvert
 iniconfig==2.0.0
     # via pytest
-ipython==8.26.0
+ipython==8.18.1
     # via paramit
 jedi==0.19.1
     # via ipython
@@ -164,3 +167,5 @@ wcwidth==0.2.13
 webencodings==0.5.1
     # via bleach
     # via tinycss2
+zipp==3.19.2
+    # via importlib-metadata

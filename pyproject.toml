@@ -1,6 +1,6 @@
 [project]
 name = "paramit"
-version = "0.2.0"
+version = "0.2.1"
 description = "Parameterize Python scripts/notebooks all from the command line."
 authors = [
     { name = "Towaki Takikawa", email = "tovacinni@gmail.com" },
@@ -15,7 +15,7 @@ dependencies = [
     "subprocess-tee>=0.4.2",
     "nbconvert>=7.16.4",
     "nbformat>=5.10.4",
-    "ipython>=8.26.0",
+    "ipython>=8.18.0",
     "libcst>=1.4.0",
     "jupytext>=1.16.3",
 ]
