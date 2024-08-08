@@ -1,6 +1,6 @@
 [project]
 name = "paramit"
-version = "0.2.1"
+version = "0.2.4"
 description = "Parameterize Python scripts/notebooks all from the command line."
 authors = [
     { name = "Towaki Takikawa", email = "tovacinni@gmail.com" },
