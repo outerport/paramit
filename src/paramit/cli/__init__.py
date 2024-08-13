@@ -522,8 +522,14 @@ def is_package_installed(package_name: str) -> bool:
         return False
 
 
-def run_code(source_code: str, python_path: str, cwd: str) -> None:
+def run_code(source_code: str, python_path: str, cwd: str, script_path: str) -> None:
     with tempfile.NamedTemporaryFile("w", delete=False) as temp_file:
+        # Write the __file__ variable at the top of the file to the original script path
+        temp_file.write(f"__file__ = {repr(os.path.abspath(script_path))}\n")
+
+        # Write the code to set the original directory as the working directory
+        temp_file.write(f"import os\nos.chdir({repr(os.path.dirname(os.path.abspath(script_path)))})\n")
+
         temp_file.write(source_code)
         temp_file_path = temp_file.name
 
@@ -651,6 +657,7 @@ def main():
 
     config = load_config_file(config_path)
     python_path = config["meta"]["python_path"]
+    orig_script_path = config["meta"]["script_path"]
 
     experiment_configs = generate_configs_from_hyperparameters(config, hyperparameters)
 
@@ -699,7 +706,7 @@ def main():
                     f.write(convert_source_code_to_ipynb(source_code))
 
             print(f"Running with the Python interpreter at {python_path}")
-            run_code(source_code, python_path, experiment_dir)
+            run_code(source_code, python_path, experiment_dir, orig_script_path)
 
         elif mode == ParamitMode.NOTEBOOK:
             ipykernel_is_installed = is_package_installed("ipykernel")
