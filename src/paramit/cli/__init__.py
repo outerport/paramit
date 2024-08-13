@@ -527,6 +527,9 @@ def run_code(source_code: str, python_path: str, cwd: str, script_path: str) -> 
         # Write the __file__ variable at the top of the file to the original script path
         temp_file.write(f"__file__ = {repr(os.path.abspath(script_path))}\n")
 
+        # Write the code to set the original directory as the working directory
+        temp_file.write(f"import os\nos.chdir({repr(os.path.dirname(os.path.abspath(script_path)))})\n")
+
         temp_file.write(source_code)
         temp_file_path = temp_file.name
 
