@@ -654,6 +654,7 @@ def main():
 
     config = load_config_file(config_path)
     python_path = config["meta"]["python_path"]
+    orig_script_path = config["meta"]["script_path"]
 
     experiment_configs = generate_configs_from_hyperparameters(config, hyperparameters)
 
@@ -702,7 +703,7 @@ def main():
                     f.write(convert_source_code_to_ipynb(source_code))
 
             print(f"Running with the Python interpreter at {python_path}")
-            run_code(source_code, python_path, experiment_dir, path)
+            run_code(source_code, python_path, experiment_dir, orig_script_path)
 
         elif mode == ParamitMode.NOTEBOOK:
             ipykernel_is_installed = is_package_installed("ipykernel")
